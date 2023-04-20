@@ -51,7 +51,8 @@ executing.  This is a precacution against having a malicious server
 instruct clients to write files over areas they shouldn't.
 */
 
-#define BASEDIRNAME				"baseq2"
+#define BASEDIRNAME				"data"
+//#define BASEDIRNAME				"baseq2"
 
 #define MAX_HANDLES				32
 #define MAX_READ				0x10000

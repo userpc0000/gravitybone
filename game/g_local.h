@@ -66,6 +66,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	SPAWNFLAG_NOT_COOP			0x00001000
 
 // edict->flags
+/*
 #define	FL_FLY					0x00000001
 #define	FL_SWIM					0x00000002	// implied immunity to drowining
 #define FL_IMMUNE_LASER			0x00000004
@@ -93,7 +94,38 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define FL_REFLECT              0x00400000	// Reflection entity
 
 #define FL_RESPAWN				0x80000000	// used for item respawning
+*/
 
+#define	FL_FLY					0b00000000000000000000000000000001
+#define	FL_SWIM					0b00000000000000000000000000000010	// implied immunity to drowining
+#define FL_IMMUNE_LASER			0b00000000000000000000000000000100
+#define	FL_INWATER				0b00000000000000000000000000001000
+#define	FL_GODMODE				0b00000000000000000000000000010000
+#define	FL_NOTARGET				0b00000000000000000000000000100000
+#define FL_IMMUNE_SLIME			0b00000000000000000000000001000000
+#define FL_IMMUNE_LAVA			0b00000000000000000000000010000000
+#define	FL_PARTIALGROUND		0b00000000000000000000000100000000	// not all corners are valid
+#define	FL_WATERJUMP			0b00000000000000000000001000000000	// player jumping out of water
+#define	FL_TEAMSLAVE			0b00000000000000000000010000000000	// not the first on the team
+#define FL_NO_KNOCKBACK			0b00000000000000000000100000000000
+#define FL_POWER_SHIELD			0b00000000000000000001000000000000	// power armor (if any) is active
+#define FL_POWER_SCREEN			0b00000000000000000010000000000000
+
+#define FL_BOB                  0b00000000000000000100000000000000  // Lazarus: Used for bobbing water
+#define	FL_TURRET_OWNER			0b00000000000000001000000000000000  // Lazarus: player on turret and controlling it
+#define FL_TRACKTRAIN			0b00000000000000010000000000000000	
+#define FL_DISGUISED			0b00000000000000100000000000000000	// entity is in disguise, monsters will not recognize.
+#define	FL_NOGIB				0b00000000000001000000000000000000	// player has been vaporized by a nuke, drop no gibs
+
+#define FL_REVERSIBLE           0b00000000000010000000000000000000	// Lazarus: used for reversible func_door_rotating
+#define FL_REVOLVING            0b00000000000100000000000000000000	// Lazarus revolving door
+#define FL_ROBOT				0b00000000001000000000000000000000	// Player-controlled robot or monster. Relax yaw constraints
+#define FL_REFLECT              0b00000000010000000000000000000000	// Reflection entity
+
+#define FL_RESPAWN				0b00000000100000000000000000000000	// used for item respawning
+
+// Sirennus
+#define FL_ON_LADDER			0b00000001000000000000000000000000	// are we holding on to a ladder 
 
 #define	FRAMETIME		0.1
 
@@ -1956,6 +1988,8 @@ struct edict_s
 	int state;
 // ACEBOT_END
 
+	// Sirennus - surface normal of the ladder we're climbing
+	vec3_t ladder_normal;
 };
 
 #define	LOOKAT_NOBRUSHMODELS  1

@@ -62,9 +62,9 @@ qboolean modType (char *name);
 /*
 ** VID_CreateWindow
 */
-#define	WINDOW_CLASS_NAME	"KMQuake2" // changed
-#define	WINDOW_CLASS_NAME2	"KMQuake2 - The Reckoning" // changed
-#define	WINDOW_CLASS_NAME3	"KMQuake2 - Ground Zero" // changed
+#define	WINDOW_CLASS_NAME	"PILE" // changed
+#define	WINDOW_CLASS_NAME2	"PILE - The Reckoning" // changed
+#define	WINDOW_CLASS_NAME3	"PILE - Ground Zero" // changed
 
 qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 {
@@ -141,7 +141,7 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 	glw_state.hWnd = CreateWindowEx (
 		 exstyle, 
 		 WINDOW_CLASS_NAME,
-		 "KMQuake2",		//Knightmare changed
+		 "PILE",
 		 stylebits,
 		 x, y, w, h,
 		 NULL,
@@ -324,9 +324,11 @@ WORD gamma_ramp[3][256];
 
 void GLimp_Shutdown( void )
 {
+	/*
 	//Knightmare- added Vic's hardware gamma ramp
 	if ( !r_ignorehwgamma->value )
 	{
+
 		if( qwglSetDeviceGammaRamp3DFX )
 		{
 			WORD newramp[3*256];
@@ -345,8 +347,10 @@ void GLimp_Shutdown( void )
 		{
 			SetDeviceGammaRamp (glw_state.hDC, original_ramp);
 		}
+
 	}
 	//end Knightmare
+	*/
 
 	if ( qwglMakeCurrent && !qwglMakeCurrent( NULL, NULL ) )
 		VID_Printf( PRINT_ALL, "ref_gl::R_Shutdown() - wglMakeCurrent failed\n");
@@ -669,6 +673,8 @@ fail:
 //Knightmare- added Vic's hardware gammaramp
 void UpdateGammaRamp (void)
 {
+	/*
+
 	int i, o;
 
 	if (!gl_state.gammaRamp)
@@ -703,6 +709,8 @@ void UpdateGammaRamp (void)
 	} else {
 		SetDeviceGammaRamp ( glw_state.hDC, gamma_ramp );
 	}
+
+	*/
 }
 
 /*

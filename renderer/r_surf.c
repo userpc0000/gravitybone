@@ -233,7 +233,7 @@ void R_DrawGLPoly (msurface_t *fa, float alpha, qboolean light, qboolean envmap)
 	}
 
 	if (fa->texinfo->flags & SURF_FLOWING) {
-		scroll = -64 * ( (r_newrefdef.time / 40.0) - (int)(r_newrefdef.time / 40.0) );
+		scroll = -64 * ( (r_newrefdef.time / 160.0) - (int)(r_newrefdef.time / 160.0) );
 		if (scroll == 0.0)	scroll = -64.0;
 	}
 	else

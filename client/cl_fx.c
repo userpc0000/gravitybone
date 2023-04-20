@@ -489,6 +489,7 @@ void calcPartVelocity(cparticle_t *p, float scale, float *time, vec3_t velocity)
 		velocity[2] = scale * (p->vel[2]*time1 + (p->accel[2])*time2);
 }
 
+/* Defined in game lib (game's statically linked now) - sirennus
 void ClipVelocity (vec3_t in, vec3_t normal, vec3_t out)
 {
 	float	backoff, change;
@@ -503,7 +504,7 @@ void ClipVelocity (vec3_t in, vec3_t normal, vec3_t out)
 		if (out[i] > -STOP_EPSILON && out[i] < STOP_EPSILON)
 			out[i] = 0;
 	}
-}
+}*/
 
 void pBounceThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, float *size, int *image, float *time)
 {

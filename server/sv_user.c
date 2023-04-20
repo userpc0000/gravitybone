@@ -573,7 +573,7 @@ SV_ExecuteClientMessage
 The current net_message is parsed for the given client
 ===================
 */
-void SV_ExecuteClientMessage (client_t *cl)
+void SV_ExecuteClientMessage(client_t *cl)
 {
 	int		c;
 	char	*s;
@@ -598,28 +598,28 @@ void SV_ExecuteClientMessage (client_t *cl)
 	{
 		if (net_message.readcount > net_message.cursize)
 		{
-			Com_Printf ("SV_ReadClientMessage: badread\n");
-			SV_DropClient (cl);
+			Com_Printf("SV_ReadClientMessage: badread\n");
+			SV_DropClient(cl);
 			return;
-		}	
+		}
 
-		c = MSG_ReadByte (&net_message);
+		c = MSG_ReadByte(&net_message);
 		if (c == -1)
 			break;
-				
+
 		switch (c)
 		{
 		default:
-			Com_Printf ("SV_ReadClientMessage: unknown command char\n");
-			SV_DropClient (cl);
+			Com_Printf("SV_ReadClientMessage: unknown command char\n");
+			SV_DropClient(cl);
 			return;
-						
+
 		case clc_nop:
 			break;
 
 		case clc_userinfo:
-			strncpy (cl->userinfo, MSG_ReadString (&net_message), sizeof(cl->userinfo)-1);
-			SV_UserinfoChanged (cl);
+			strncpy(cl->userinfo, MSG_ReadString(&net_message), sizeof(cl->userinfo) - 1);
+			SV_UserinfoChanged(cl);
 			break;
 
 		case clc_move:
@@ -628,37 +628,37 @@ void SV_ExecuteClientMessage (client_t *cl)
 
 			move_issued = true;
 			checksumIndex = net_message.readcount;
-			checksum = MSG_ReadByte (&net_message);
-			lastframe = MSG_ReadLong (&net_message);
+			checksum = MSG_ReadByte(&net_message);
+			lastframe = MSG_ReadLong(&net_message);
 			if (lastframe != cl->lastframe) {
 				cl->lastframe = lastframe;
 				if (cl->lastframe > 0) {
-					cl->frame_latency[cl->lastframe&(LATENCY_COUNTS-1)] = 
+					cl->frame_latency[cl->lastframe&(LATENCY_COUNTS - 1)] =
 						svs.realtime - cl->frames[cl->lastframe & UPDATE_MASK].senttime;
 				}
 			}
 
-			memset (&nullcmd, 0, sizeof(nullcmd));
-			MSG_ReadDeltaUsercmd (&net_message, &nullcmd, &oldest);
-			MSG_ReadDeltaUsercmd (&net_message, &oldest, &oldcmd);
-			MSG_ReadDeltaUsercmd (&net_message, &oldcmd, &newcmd);
+			memset(&nullcmd, 0, sizeof(nullcmd));
+			MSG_ReadDeltaUsercmd(&net_message, &nullcmd, &oldest);
+			MSG_ReadDeltaUsercmd(&net_message, &oldest, &oldcmd);
+			MSG_ReadDeltaUsercmd(&net_message, &oldcmd, &newcmd);
 
-			if ( cl->state != cs_spawned )
+			if (cl->state != cs_spawned)
 			{
 				cl->lastframe = -1;
 				break;
 			}
 
 			// if the checksum fails, ignore the rest of the packet
-			calculatedChecksum = COM_BlockSequenceCRCByte (
+			calculatedChecksum = COM_BlockSequenceCRCByte(
 				net_message.data + checksumIndex + 1,
 				net_message.readcount - checksumIndex - 1,
 				cl->netchan.incoming_sequence);
 
 			if (calculatedChecksum != checksum)
 			{
-				Com_DPrintf ("Failed command checksum for %s (%d != %d)/%d\n", 
-					cl->name, calculatedChecksum, checksum, 
+				Com_DPrintf("Failed command checksum for %s (%d != %d)/%d\n",
+					cl->name, calculatedChecksum, checksum,
 					cl->netchan.incoming_sequence);
 				return;
 			}
@@ -669,34 +669,34 @@ void SV_ExecuteClientMessage (client_t *cl)
 				if (net_drop < 20)
 				{
 
-//if (net_drop > 2)
+					//if (net_drop > 2)
 
-//	Com_Printf ("drop %i\n", net_drop);
+					//	Com_Printf ("drop %i\n", net_drop);
 					while (net_drop > 2)
 					{
-						SV_ClientThink (cl, &cl->lastcmd);
+						SV_ClientThink(cl, &cl->lastcmd);
 
 						net_drop--;
 					}
 					if (net_drop > 1)
-						SV_ClientThink (cl, &oldest);
+						SV_ClientThink(cl, &oldest);
 
 					if (net_drop > 0)
-						SV_ClientThink (cl, &oldcmd);
+						SV_ClientThink(cl, &oldcmd);
 
 				}
-				SV_ClientThink (cl, &newcmd);
+				SV_ClientThink(cl, &newcmd);
 			}
 
 			cl->lastcmd = newcmd;
 			break;
 
-		case clc_stringcmd:	
-			s = MSG_ReadString (&net_message);
+		case clc_stringcmd:
+			s = MSG_ReadString(&net_message);
 
 			// malicious users may try using too many string commands
 			if (++stringCmdCount < MAX_STRINGCMDS)
-				SV_ExecuteUserCommand (s);
+				SV_ExecuteUserCommand(s);
 
 			if (cl->state == cs_zombie)
 				return;	// disconnect command

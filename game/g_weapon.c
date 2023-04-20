@@ -1056,9 +1056,15 @@ void fire_grenade2 (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int 
 	VectorMA (grenade->velocity, crandom() * 10.0, right, grenade->velocity);
 
 	// Lazarus: Add owner velocity
-//	VectorAdd (grenade->velocity, self->velocity, grenade->velocity);
+	VectorAdd (grenade->velocity, self->velocity, grenade->velocity);
 	// NO. This is too unrealistic. Instead, if owner is riding a moving entity,
 	//     add velocity of the thing he's riding
+	// Sirennus: It is NOT too unrealistic it is literally how physics works. uncommenting
+
+	{ // add small amount of inverse velocity to the player
+		vec3_t inverse_velocity = { grenade->velocity[0] * -0.05f, grenade->velocity[1] * -0.05f, grenade->velocity[2] * -0.05f };
+		VectorAdd (self->velocity, inverse_velocity, self->velocity);
+	}
 
 	//Knightmare- add player's base velocity to grenade
 	if (add_velocity_throw->value && self->client)

@@ -493,27 +493,41 @@ void PM_AddCurrents (vec3_t	wishvel)
 
 	if (pml.ladder && fabs(pml.velocity[2]) <= 200)
 	{
-		if ((pm->viewangles[PITCH] <= -15) && (pm->cmd.forwardmove > 0))
-			wishvel[2] = 200;
-		else if ((pm->viewangles[PITCH] >= 15) && (pm->cmd.forwardmove > 0))
-			wishvel[2] = -200;
-		else if (pm->cmd.upmove > 0)
-			wishvel[2] = 200;
-		else if (pm->cmd.upmove < 0)
-			wishvel[2] = -200;
+		vec_t move_ver = pm->viewangles[PITCH] * -4;
+		if (move_ver < -200)
+			move_ver = -200;
+		else if (move_ver > 200)
+			move_ver = 200;
+
+		if (pm->cmd.forwardmove > 0)
+			wishvel[2] = pm->viewangles[PITCH] * -2;
+
+		//	if ((pm->viewangles[PITCH] <= -15) && (pm->cmd.forwardmove > 0))
+		//		wishvel[2] = 200;
+		//	else if ((pm->viewangles[PITCH] >= 15) && (pm->cmd.forwardmove > 0))
+		//		wishvel[2] = -200;
+
+		// jump climbing, completely unwanted
+		//	else if (pm->cmd.upmove > 0)
+		//		wishvel[2] = 200;
+		//	else if (pm->cmd.upmove < 0)
+		//		wishvel[2] = -200;
 		else
 			wishvel[2] = 0;
 
-		// limit horizontal speed when on a ladder
-		if (wishvel[0] < -25)
-			wishvel[0] = -25;
-		else if (wishvel[0] > 25)
-			wishvel[0] = 25;
+		wishvel[0] = wishvel[0] * 0.75f;
+		wishvel[1] = wishvel[1] * 0.75f;
 
-		if (wishvel[1] < -25)
-			wishvel[1] = -25;
-		else if (wishvel[1] > 25)
-			wishvel[1] = 25;
+		//	// limit horizontal speed when on a ladder
+		//	if (wishvel[0] < -25)
+		//		wishvel[0] = -25;
+		//	else if (wishvel[0] > 25)
+		//		wishvel[0] = 25;
+		//	
+		//	if (wishvel[1] < -25)
+		//		wishvel[1] = -25;
+		//	else if (wishvel[1] > 25)
+		//		wishvel[1] = 25;
 	}
 
 
@@ -911,7 +925,9 @@ void PM_CheckSpecialMovement (void)
 	if (pm->s.pm_time)
 		return;
 
-	pml.ladder = false;
+	//assert(pml.ladder == false);
+	pml.ladder = (pm->s.pm_flags & PMF_ON_LADDER) > 0;
+	
 
 	// check for ladder
 	flatforward[0] = pml.forward[0];
@@ -921,8 +937,45 @@ void PM_CheckSpecialMovement (void)
 
 	VectorMA (pml.origin, 1, flatforward, spot);
 	trace = pm->trace (pml.origin, pm->mins, pm->maxs, spot);
-	if ((trace.fraction < 1) && (trace.contents & CONTENTS_LADDER))
+	
+	// handle getting on the ladder
+	//if ((trace.fraction < 1) && (trace.contents & CONTENTS_LADDER))
+	if ((trace.fraction < 0.12f) && (trace.contents & CONTENTS_LADDER)) {
 		pml.ladder = true;
+		//	VectorCopy(trace.plane.normal, pm->s.ladder_norm);
+		//	pm->s.ladder_norm[0] = -pm->s.ladder_norm[0];
+		//	pm->s.ladder_norm[1] = -pm->s.ladder_norm[1];
+		//	pm->s.ladder_norm[2] = -pm->s.ladder_norm[2];
+
+		VectorCopy(flatforward, pm->s.ladder_norm);
+	}
+
+	// perform a new trace against the reverse of the ladder normal
+	else if (pml.ladder) {
+		//	flatforward[0] = -pm->s.ladder_norm[0];
+		//	flatforward[1] = -pm->s.ladder_norm[1];
+		//	flatforward[2] = 0;
+		//	VectorNormalize(flatforward);
+
+		VectorMA(pml.origin, 1, pm->s.ladder_norm, spot);
+		trace = pm->trace(pml.origin, pm->mins, pm->maxs, spot);
+
+		// release from the ladder if the trace hit no ladder
+		if (!(trace.contents & CONTENTS_LADDER))
+			pml.ladder = false;
+
+		// release from ladder if jump is held (and not looking at the ladder)
+		if (pm->cmd.upmove != 0)
+			pml.ladder = false;
+	}
+
+
+	// update ladder state
+	if (pml.ladder)
+		pm->s.pm_flags |= PMF_ON_LADDER; // set ladder
+	else
+		pm->s.pm_flags &= ~PMF_ON_LADDER; // unset ladder
+
 
 	// check for water jump
 	if (pm->waterlevel != 2)

@@ -417,6 +417,103 @@ void R_Bloom_GeneratexDiamonds( void )
 	//GL_BlendFunc(GL_ONE, GL_ONE);
 	GL_BlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
 	
+	// Larger bloom by sirennus
+	/*
+	if (r_bloom_diamond_size->value > 8) {
+		// is it an odd number, if so round up
+		if (((int)r_bloom_diamond_size->value & 0b1) > 0)
+			Cvar_SetValue( "r_bloom_diamond_size", r_bloom_diamond_size->value + 1 );
+
+
+
+		for(i=0; i<r_bloom_diamond_size->value; i++) {
+			for(j=0; j<r_bloom_diamond_size->value; j++) {
+
+
+
+				float half_size = r_bloom_diamond_size->value * 0.5f;
+				int half_size_int = (int)r_bloom_diamond_size->value / 2;
+
+				int i_rel = i - half_size_int;
+				int j_rel = j - half_size_int;
+
+				float length = sqrt((float)((i - half_size_int) * (i - half_size_int) + (j - half_size_int) * (j - half_size_int)));
+				if (length > half_size) length = half_size;
+
+
+				float bloom_intens = r_bloom_intensity->value;
+
+				float len_norm = length / half_size;
+
+				intensity = (1.f - (length / half_size)) * r_bloom_intensity->value;
+
+				//intensity -= r_bloom_threshold->value;
+
+				//if( intensity < r_bloom_threshold->value ) continue;
+				qglColor4f( intensity, intensity, intensity, 1.0);
+				R_Bloom_SamplePass( i - half_size_int, j - half_size_int );
+			}
+		}
+	}
+	else
+	//*/
+	//*
+	if (r_bloom_diamond_size->value > 8) {
+		// is it an odd number, if so round up
+		if (((int)r_bloom_diamond_size->value & 0b1) > 0)
+			Cvar_SetValue( "r_bloom_diamond_size", r_bloom_diamond_size->value + 1 );
+
+
+
+		for(i=0; i<r_bloom_diamond_size->value; i++) {
+			for(j=0; j<r_bloom_diamond_size->value; j++) {
+
+
+
+				float half_size = r_bloom_diamond_size->value * 0.5f;
+				int half_size_int = (int)r_bloom_diamond_size->value / 2;
+
+				int i_rel = i - half_size_int;
+				int j_rel = j - half_size_int;
+
+				float length = sqrt((float)((i - half_size_int) * (i - half_size_int) + (j - half_size_int) * (j - half_size_int)));
+				if (length > half_size) length = half_size;
+
+
+				float bloom_intens = r_bloom_intensity->value;
+
+				float len_norm = length / half_size;
+
+				//intensity = (1.f - (length / half_size)) * 1.5f;
+				//if (intensity > 1.f) intensity = 1.f;
+				//intensity *= r_bloom_intensity->value;
+				
+				intensity = (1.f - (length / half_size)) * r_bloom_intensity->value;
+
+				//intensity -= r_bloom_threshold->value;
+
+				//if( intensity < r_bloom_threshold->value ) continue;
+				qglColor4f( intensity, intensity, intensity, 1.0);
+				
+				float xpos = i - half_size_int;
+				float ypos = j - half_size_int;
+
+				// does this literally render a quad onto the screen????
+				qglBegin(GL_QUADS);
+				qglTexCoord2f(0, sampleText_tch);
+				qglVertex2f(xpos, ypos);
+				qglTexCoord2f(0, 0);
+				qglVertex2f(xpos, ypos + sample_height);
+				qglTexCoord2f(sampleText_tcw, 0);
+				qglVertex2f(xpos + sample_width, ypos + sample_height);
+				qglTexCoord2f(sampleText_tcw, sampleText_tch);
+				qglVertex2f(xpos + sample_width, ypos);
+				qglEnd();
+			}
+		}
+	}
+	else
+		//*/
 	if( r_bloom_diamond_size->value > 7 || r_bloom_diamond_size->value <= 3)
 	{
 		if( (int)r_bloom_diamond_size->value != 8 ) Cvar_SetValue( "r_bloom_diamond_size", 8 );

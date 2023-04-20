@@ -1161,7 +1161,9 @@ char	*va(char *format, ...)
 }
 
 
-char	com_token[MAX_TOKEN_CHARS];
+// Sirennus - Add one extra character to still allow for a
+// null terminator if the token is the max character length
+char	com_token[MAX_TOKEN_CHARS + 1];
 
 /*
 ==============
@@ -1213,8 +1215,12 @@ skipwhite:
 		while (1)
 		{
 			c = *data++;
+
+
 			if (c=='\"' || !c)
 			{
+				// Sirennus - just a safety check
+				assert(len <= MAX_TOKEN_CHARS);
 				com_token[len] = 0;
 				*data_p = data;
 				return com_token;

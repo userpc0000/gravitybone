@@ -71,8 +71,6 @@ char *bindnames[][2] =
 {"save quick",		"Quick Save"},
 {"load quick",		"Quick Load"},
 
-
-{ 0, 0 }
 };
 
 int				keys_cursor;
@@ -131,16 +129,6 @@ static void M_FindKeysForCommand (char *command, int *twokeys)
 		}
 	}
 }
-
-int listSize (char* list[][2])
-{
-	int i=0;
-	while (list[i][1])
-		i++;
-
-	return i;	
-}
-
 
 static void KeysBackCursorDrawFunc ( menuaction_s *self ) // back action
 {
@@ -280,7 +268,9 @@ static void Keys_MenuInit( void )
 	s_keys_menu.nitems = 0;
 	s_keys_menu.cursordraw = KeyCursorDrawFunc;
 
-	BINDS_MAX = listSize(bindnames);
+	// better array length getter by sirennus, lol
+	BINDS_MAX = (sizeof(bindnames) / 2) / sizeof(char*);
+
 	for (i=0;i<BINDS_MAX;i++)
 		addBindOption(i, bindnames);
 

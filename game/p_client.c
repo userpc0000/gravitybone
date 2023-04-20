@@ -3318,8 +3318,18 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		if(ent->vehicle)
 			pm.s.pm_flags |= PMF_ON_GROUND;
 
+		if (ent->flags & FL_ON_LADDER)
+			pm.s.pm_flags |= PMF_ON_LADDER;
+		VectorCopy(ent->ladder_normal, pm.s.ladder_norm);
+		
 		// perform a pmove
 		gi.Pmove (&pm);
+
+		if (pm.s.pm_flags & PMF_ON_LADDER)
+			ent->flags |= FL_ON_LADDER; // set ladder
+		else
+			ent->flags &= ~FL_ON_LADDER; // unset ladder
+		VectorCopy(pm.s.ladder_norm, ent->ladder_normal);
 
 		// save results of pmove
 		client->ps.pmove = pm.s;

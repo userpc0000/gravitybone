@@ -651,8 +651,8 @@ R_DrawFadeScreen
 void R_DrawFadeScreen (void)
 {
 	GL_Enable (GL_BLEND);
-	//qglDisable (GL_TEXTURE_2D);
-	GL_DisableTexture (0);
+	qglDisable (GL_TEXTURE_2D);
+	//GL_DisableTexture (0);
 	qglColor4f (0, 0, 0, 0.8);
 	qglBegin (GL_QUADS);
 
@@ -663,8 +663,8 @@ void R_DrawFadeScreen (void)
 
 	qglEnd ();
 	qglColor4f (1,1,1,1);
-	//qglEnable (GL_TEXTURE_2D);
-	GL_EnableTexture (0);
+	qglEnable (GL_TEXTURE_2D);
+	//GL_EnableTexture (0);
 	GL_Disable (GL_BLEND);
 }
 
