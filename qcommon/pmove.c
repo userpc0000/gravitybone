@@ -1202,7 +1202,6 @@ void PM_DeadMove (void)
 	}
 }
 
-
 qboolean	PM_GoodPosition (void)
 {
 	trace_t	trace;
@@ -1227,6 +1226,35 @@ This function used to quantize the coords to 0.125 precision
 Now it just updates the pmove velocity/origin and checks its validity
 ================
 */
+/* left in for reference
+void PM_InitialSnapPosition(void)
+{
+	int        x, y, z;
+	vec3_t	base;
+
+	static vec_t offset[3] = { 0, -0.125f, 0.125f };
+
+	VectorCopy (pm->s.origin_f, base);
+
+	for ( z = 0; z < 3; z++ ) {
+		pm->s.origin_f[2] = base[2] + offset[ z ];
+		for ( y = 0; y < 3; y++ ) {
+			pm->s.origin_f[1] = base[1] + offset[ y ];
+			for ( x = 0; x < 3; x++ ) {
+				pm->s.origin_f[0] = base[0] + offset[ x ];
+				if (PM_GoodPosition ()) {
+					pml.origin[0] = pm->s.origin_f[0];
+					pml.origin[1] = pm->s.origin_f[1];
+					pml.origin[2] = pm->s.origin_f[2];
+					VectorCopy (pm->s.origin_f, pml.previous_origin);
+					return;
+				}
+			}
+		}
+	}
+
+	Com_DPrintf ("Bad InitialSnapPosition\n");
+} */
 void PM_UpdatePosition (void)
 {
 	VectorCopy (pml.velocity, pm->s.velocity_f);
@@ -1235,9 +1263,35 @@ void PM_UpdatePosition (void)
 	if (PM_GoodPosition ())
 		return;
 
+	{
+		int        x, y, z;
+		vec3_t	base;
+
+		static vec_t offset[3] = { 0, -0.125f, 0.125f };
+
+		VectorCopy (pm->s.origin_f, base);
+
+		for ( z = 0; z < 3; z++ ) {
+			pm->s.origin_f[2] = base[2] + offset[ z ];
+			for ( y = 0; y < 3; y++ ) {
+				pm->s.origin_f[1] = base[1] + offset[ y ];
+				for ( x = 0; x < 3; x++ ) {
+					pm->s.origin_f[0] = base[0] + offset[ x ];
+					if (PM_GoodPosition ()) {
+						pml.origin[0] = pm->s.origin_f[0];
+						pml.origin[1] = pm->s.origin_f[1];
+						pml.origin[2] = pm->s.origin_f[2];
+						//VectorCopy (pm->s.origin_f, pml.previous_origin);
+						return;
+					}
+				}
+			}
+		}
+	}
+
 	// go back to the last position
 	VectorCopy (pml.previous_origin, pm->s.origin_f);
-//	Com_DPrintf ("using previous_origin\n");
+	Com_Printf ("UpdatePosition failed: using previous_origin\n");
 }
 
 /*
