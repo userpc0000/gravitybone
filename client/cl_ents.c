@@ -652,16 +652,16 @@ void CL_ParsePlayerstate (frame_t *oldframe, frame_t *newframe)
 
 		if (flags & PS_M_ORIGIN) // FIXME- map size
 		{
-			state->pmove.origin[0] = MSG_ReadShort (&net_message);
-			state->pmove.origin[1] = MSG_ReadShort (&net_message);
-			state->pmove.origin[2] = MSG_ReadShort (&net_message);
+			state->pmove.origin_f[0] = MSG_ReadFloat (&net_message);
+			state->pmove.origin_f[1] = MSG_ReadFloat (&net_message);
+			state->pmove.origin_f[2] = MSG_ReadFloat (&net_message);
 		}
 
 		if (flags & PS_M_VELOCITY)
 		{
-			state->pmove.velocity[0] = MSG_ReadShort (&net_message);
-			state->pmove.velocity[1] = MSG_ReadShort (&net_message);
-			state->pmove.velocity[2] = MSG_ReadShort (&net_message);
+			state->pmove.velocity_f[0] = MSG_ReadFloat (&net_message);
+			state->pmove.velocity_f[1] = MSG_ReadFloat (&net_message);
+			state->pmove.velocity_f[2] = MSG_ReadFloat (&net_message);
 		}
 
 		if (flags & PS_M_TIME)
@@ -756,22 +756,16 @@ void CL_ParsePlayerstate (frame_t *oldframe, frame_t *newframe)
 
 		if (flags & PS_M_ORIGIN)
 		{
-#ifdef LARGE_MAP_SIZE
-			state->pmove.origin[0] = MSG_ReadPMCoordNew (&net_message);
-			state->pmove.origin[1] = MSG_ReadPMCoordNew (&net_message);
-			state->pmove.origin[2] = MSG_ReadPMCoordNew (&net_message);
-#else
-			state->pmove.origin[0] = MSG_ReadShort (&net_message);
-			state->pmove.origin[1] = MSG_ReadShort (&net_message);
-			state->pmove.origin[2] = MSG_ReadShort (&net_message);
-#endif
+			state->pmove.origin_f[0] = MSG_ReadFloat (&net_message);
+			state->pmove.origin_f[1] = MSG_ReadFloat (&net_message);
+			state->pmove.origin_f[2] = MSG_ReadFloat (&net_message);
 		}
 
 		if (flags & PS_M_VELOCITY)
 		{
-			state->pmove.velocity[0] = MSG_ReadShort (&net_message);
-			state->pmove.velocity[1] = MSG_ReadShort (&net_message);
-			state->pmove.velocity[2] = MSG_ReadShort (&net_message);
+			state->pmove.velocity_f[0] = MSG_ReadFloat (&net_message);
+			state->pmove.velocity_f[1] = MSG_ReadFloat (&net_message);
+			state->pmove.velocity_f[2] = MSG_ReadFloat (&net_message);
 		}
 
 		if (flags & PS_M_TIME)
@@ -1037,9 +1031,7 @@ void CL_ParseFrame (void)
 		{
 			cls.state = ca_active;
 			cl.force_refdef = true;
-			cl.predicted_origin[0] = cl.frame.playerstate.pmove.origin[0]*0.125;
-			cl.predicted_origin[1] = cl.frame.playerstate.pmove.origin[1]*0.125;
-			cl.predicted_origin[2] = cl.frame.playerstate.pmove.origin[2]*0.125;
+			VectorCopy(cl.frame.playerstate.pmove.origin_f, cl.predicted_origin);
 			VectorCopy (cl.frame.playerstate.viewangles, cl.predicted_angles);
 			if (cls.disable_servercount != cl.servercount
 				&& cl.refresh_prepped)
@@ -2184,9 +2176,9 @@ void CL_CalcViewValues (void)
 	ops = &oldframe->playerstate;
 
 	// see if the player entity was teleported this frame
-	if ( fabs(ops->pmove.origin[0] - ps->pmove.origin[0]) > 256*8
-		|| abs(ops->pmove.origin[1] - ps->pmove.origin[1]) > 256*8
-		|| abs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256*8)
+	if ( fabsf(ops->pmove.origin_f[0] - ps->pmove.origin_f[0]) > 256.f
+		|| fabsf(ops->pmove.origin_f[1] - ps->pmove.origin_f[1]) > 256.f
+		|| fabsf(ops->pmove.origin_f[2] - ps->pmove.origin_f[2]) > 256.f)
 		ops = ps;		// don't interpolate
 
 	ent = &cl_entities[cl.playernum+1];
@@ -2219,9 +2211,9 @@ void CL_CalcViewValues (void)
 	{
 		// just use interpolated values
 		for (i=0; i<3; i++)
-			cl.refdef.vieworg[i] = ops->pmove.origin[i]*0.125 + ops->viewoffset[i] 
-				+ lerp * (ps->pmove.origin[i]*0.125 + ps->viewoffset[i] 
-				- (ops->pmove.origin[i]*0.125 + ops->viewoffset[i]) );
+			cl.refdef.vieworg[i] = ops->pmove.origin_f[i] + ops->viewoffset[i] 
+				+ lerp * (ps->pmove.origin_f[i] + ps->viewoffset[i] 
+				- (ops->pmove.origin_f[i] + ops->viewoffset[i]) );
 
 		// Knightmare- set predicted origin anyway, it's needed for the chasecam
 		VectorCopy(cl.refdef.vieworg, cl.predicted_origin);

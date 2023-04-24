@@ -242,14 +242,14 @@ void SV_WritePlayerstateToClient (client_frame_t *from, client_frame_t *to, size
 	if (ps->pmove.pm_type != ops->pmove.pm_type)
 		pflags |= PS_M_TYPE;
 
-	if (ps->pmove.origin[0] != ops->pmove.origin[0]
-		|| ps->pmove.origin[1] != ops->pmove.origin[1]
-		|| ps->pmove.origin[2] != ops->pmove.origin[2] )
+	if (ps->pmove.origin_f[0] != ops->pmove.origin_f[0]
+		|| ps->pmove.origin_f[1] != ops->pmove.origin_f[1]
+		|| ps->pmove.origin_f[2] != ops->pmove.origin_f[2] )
 		pflags |= PS_M_ORIGIN;
 
-	if (ps->pmove.velocity[0] != ops->pmove.velocity[0]
-		|| ps->pmove.velocity[1] != ops->pmove.velocity[1]
-		|| ps->pmove.velocity[2] != ops->pmove.velocity[2] )
+	if (ps->pmove.velocity_f[0] != ops->pmove.velocity_f[0]
+		|| ps->pmove.velocity_f[1] != ops->pmove.velocity_f[1]
+		|| ps->pmove.velocity_f[2] != ops->pmove.velocity_f[2] )
 		pflags |= PS_M_VELOCITY;
 
 	if (ps->pmove.pm_time != ops->pmove.pm_time)
@@ -348,22 +348,16 @@ void SV_WritePlayerstateToClient (client_frame_t *from, client_frame_t *to, size
 
 	if (pflags & PS_M_ORIGIN) // FIXME- map size
 	{
-#ifdef LARGE_MAP_SIZE
-		MSG_WritePMCoordNew (msg, ps->pmove.origin[0]);
-		MSG_WritePMCoordNew (msg, ps->pmove.origin[1]);
-		MSG_WritePMCoordNew (msg, ps->pmove.origin[2]);
-#else
-		MSG_WriteShort (msg, ps->pmove.origin[0]);
-		MSG_WriteShort (msg, ps->pmove.origin[1]);
-		MSG_WriteShort (msg, ps->pmove.origin[2]);
-#endif
+		MSG_WriteFloat (msg, ps->pmove.origin_f[0]);
+		MSG_WriteFloat (msg, ps->pmove.origin_f[1]);
+		MSG_WriteFloat (msg, ps->pmove.origin_f[2]);
 	}
 
 	if (pflags & PS_M_VELOCITY)
 	{
-		MSG_WriteShort (msg, ps->pmove.velocity[0]);
-		MSG_WriteShort (msg, ps->pmove.velocity[1]);
-		MSG_WriteShort (msg, ps->pmove.velocity[2]);
+		MSG_WriteFloat (msg, ps->pmove.velocity_f[0]);
+		MSG_WriteFloat (msg, ps->pmove.velocity_f[1]);
+		MSG_WriteFloat (msg, ps->pmove.velocity_f[2]);
 	}
 
 	if (pflags & PS_M_TIME)
@@ -631,7 +625,7 @@ void SV_BuildClientFrame (client_t *client)
 
 	// find the client's PVS
 	for (i=0 ; i<3 ; i++)
-		org[i] = clent->client->ps.pmove.origin[i]*0.125 + clent->client->ps.viewoffset[i];
+		org[i] = clent->client->ps.pmove.origin_f[i] + clent->client->ps.viewoffset[i];
 
 	leafnum = CM_PointLeafnum (org);
 	clientarea = CM_LeafArea (leafnum);

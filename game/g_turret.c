@@ -782,7 +782,7 @@ void turret_breach_think (edict_t *self)
 
 			gi.linkentity(self->owner);
 
-			if (self->owner->client->ps.pmove.velocity[2] > 15) 
+			if (self->owner->client->ps.pmove.velocity_f[2] > (15.f / 8.f)) 
 				turret_disengage(self);
 		}
 	}

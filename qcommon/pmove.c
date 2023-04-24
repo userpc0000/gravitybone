@@ -1213,7 +1213,7 @@ qboolean	PM_GoodPosition (void)
 		return true;
 
 	for (i=0 ; i<3 ; i++)
-		origin[i] = end[i] = pm->s.origin[i]*0.125;
+		origin[i] = end[i] = pm->s.origin_f[i];
 	trace = pm->trace (origin, pm->mins, pm->maxs, end);
 
 	return !trace.allsolid;
@@ -1221,137 +1221,24 @@ qboolean	PM_GoodPosition (void)
 
 /*
 ================
-PM_SnapPosition
+PM_UpdatePosition
 
-On exit, the origin will have a value that is pre-quantized to the 0.125
-precision of the network channel and in a valid position.
+This function used to quantize the coords to 0.125 precision
+Now it just updates the pmove velocity/origin and checks its validity
 ================
 */
-void PM_SnapPosition (void)
+void PM_UpdatePosition (void)
 {
-	int		sign[3];
-	int		i, j, bits;
-#ifdef LARGE_MAP_SIZE // Knightmare- larger precision needed
-	int		base[3];
-#else
-	short	base[3];
-#endif
+	VectorCopy (pml.velocity, pm->s.velocity_f);
+	VectorCopy (pml.origin, pm->s.origin_f);
 
-	// try all single bits first
-	static int jitterbits[8] = {0,4,1,2,3,5,6,7};
-
-	// snap velocity to eigths
-	for (i=0 ; i<3 ; i++)
-		pm->s.velocity[i] = (int)(pml.velocity[i]*8);
-
-	for (i=0 ; i<3 ; i++)
-	{
-		if (pml.origin[i] >= 0)
-			sign[i] = 1;
-		else 
-			sign[i] = -1;
-		pm->s.origin[i] = (int)(pml.origin[i]*8);
-		if (pm->s.origin[i]*0.125 == pml.origin[i])
-			sign[i] = 0;
-	}
-	VectorCopy (pm->s.origin, base);
-
-	// try all combinations
-	for (j=0 ; j<8 ; j++)
-	{
-		bits = jitterbits[j];
-		VectorCopy (base, pm->s.origin);
-		for (i=0 ; i<3 ; i++)
-			if (bits & (1<<i) )
-				pm->s.origin[i] += sign[i];
-
-		if (PM_GoodPosition ())
-			return;
-	}
+	if (PM_GoodPosition ())
+		return;
 
 	// go back to the last position
-	VectorCopy (pml.previous_origin, pm->s.origin);
+	VectorCopy (pml.previous_origin, pm->s.origin_f);
 //	Com_DPrintf ("using previous_origin\n");
 }
-
-#if 0
-//NO LONGER USED
-/*
-================
-PM_InitialSnapPosition
-
-================
-*/
-void PM_InitialSnapPosition (void)
-{
-	int		x, y, z;
-	short	base[3];
-
-	VectorCopy (pm->s.origin, base);
-
-	for (z=1 ; z>=-1 ; z--)
-	{
-		pm->s.origin[2] = base[2] + z;
-		for (y=1 ; y>=-1 ; y--)
-		{
-			pm->s.origin[1] = base[1] + y;
-			for (x=1 ; x>=-1 ; x--)
-			{
-				pm->s.origin[0] = base[0] + x;
-				if (PM_GoodPosition ())
-				{
-					pml.origin[0] = pm->s.origin[0]*0.125;
-					pml.origin[1] = pm->s.origin[1]*0.125;
-					pml.origin[2] = pm->s.origin[2]*0.125;
-					VectorCopy (pm->s.origin, pml.previous_origin);
-					return;
-				}
-			}
-		}
-	}
-
-	Com_DPrintf ("Bad InitialSnapPosition\n");
-}
-#else
-/*
-================
-PM_InitialSnapPosition
-
-================
-*/
-void PM_InitialSnapPosition(void)
-{
-	int        x, y, z;
-#ifdef LARGE_MAP_SIZE // Knightmare- larger precision needed
-	int		base[3];
-#else
-	short	base[3];
-#endif
-	static int offset[3] = { 0, -1, 1 };
-
-	VectorCopy (pm->s.origin, base);
-
-	for ( z = 0; z < 3; z++ ) {
-		pm->s.origin[2] = base[2] + offset[ z ];
-		for ( y = 0; y < 3; y++ ) {
-			pm->s.origin[1] = base[1] + offset[ y ];
-			for ( x = 0; x < 3; x++ ) {
-				pm->s.origin[0] = base[0] + offset[ x ];
-				if (PM_GoodPosition ()) {
-					pml.origin[0] = pm->s.origin[0]*0.125;
-					pml.origin[1] = pm->s.origin[1]*0.125;
-					pml.origin[2] = pm->s.origin[2]*0.125;
-					VectorCopy (pm->s.origin, pml.previous_origin);
-					return;
-				}
-			}
-		}
-	}
-
-	Com_DPrintf ("Bad InitialSnapPosition\n");
-}
-
-#endif
 
 /*
 ================
@@ -1418,17 +1305,12 @@ void Pmove (pmove_t *pmove)
 	// clear all pmove local vars
 	memset (&pml, 0, sizeof(pml));
 
-	// convert origin and velocity to float values
-	pml.origin[0] = pm->s.origin[0]*0.125;
-	pml.origin[1] = pm->s.origin[1]*0.125;
-	pml.origin[2] = pm->s.origin[2]*0.125;
-
-	pml.velocity[0] = pm->s.velocity[0]*0.125;
-	pml.velocity[1] = pm->s.velocity[1]*0.125;
-	pml.velocity[2] = pm->s.velocity[2]*0.125;
+	// copy origin and velocity
+	VectorCopy(pm->s.origin_f, pml.origin);
+	VectorCopy(pm->s.velocity_f, pml.velocity);
 
 	// save old org in case we get stuck
-	VectorCopy (pm->s.origin, pml.previous_origin);
+	VectorCopy (pm->s.origin_f, pml.previous_origin);
 
 	pml.frametime = pm->cmd.msec * 0.001;
 
@@ -1437,7 +1319,7 @@ void Pmove (pmove_t *pmove)
 	if (pm->s.pm_type == PM_SPECTATOR)
 	{
 		PM_FlyMove (false);
-		PM_SnapPosition ();
+		PM_UpdatePosition ();
 		return;
 	}
 
@@ -1453,9 +1335,6 @@ void Pmove (pmove_t *pmove)
 
 	// set mins, maxs, and viewheight
 	PM_CheckDuck ();
-
-	if (pm->snapinitial)
-		PM_InitialSnapPosition ();
 
 	// set groundentity, watertype, and waterlevel
 	PM_CatagorizePosition ();
@@ -1521,6 +1400,6 @@ void Pmove (pmove_t *pmove)
 	// set groundentity, watertype, and waterlevel for final spot
 	PM_CatagorizePosition ();
 
-	PM_SnapPosition ();
+	PM_UpdatePosition ();
 }
 

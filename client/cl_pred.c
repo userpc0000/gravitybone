@@ -41,7 +41,7 @@ void CL_CheckPredictionError (void)
 	frame &= (CMD_BACKUP-1);
 
 	// compare what the server returned with what we had predicted it to be
-	VectorSubtract (cl.frame.playerstate.pmove.origin, cl.predicted_origins[frame], delta);
+	VectorSubtract (cl.frame.playerstate.pmove.origin_f, cl.predicted_origins[frame], delta);
 
 	// save the prediction error for interpolation
 	len = abs(delta[0]) + abs(delta[1]) + abs(delta[2]);
@@ -55,7 +55,7 @@ void CL_CheckPredictionError (void)
 			Com_Printf ("prediction miss on %i: %i\n", cl.frame.serverframe, 
 			delta[0] + delta[1] + delta[2]);
 
-		VectorCopy (cl.frame.playerstate.pmove.origin, cl.predicted_origins[frame]);
+		VectorCopy (cl.frame.playerstate.pmove.origin_f, cl.predicted_origins[frame]);
 
 		// save for error itnerpolation
 		for (i=0 ; i<3 ; i++)
@@ -409,7 +409,7 @@ void CL_PredictMovement (void)
 	pmove_t		pm;
 	int			i;
 	int			step;
-	int			oldz;
+	vec_t		oldz;
 
 	if (cls.state != ca_active)
 		return;
@@ -460,12 +460,12 @@ void CL_PredictMovement (void)
 		Pmove (&pm);
 	
 		// save for debug checking
-		VectorCopy (pm.s.origin, cl.predicted_origins[frame]);
+		VectorCopy (pm.s.origin_f, cl.predicted_origins[frame]);
 	}
 
 	oldframe = (ack-2) & (CMD_BACKUP-1);
 	oldz = cl.predicted_origins[oldframe][2];
-	step = pm.s.origin[2] - oldz;
+	step = pm.s.origin_f[2] - oldz;
 	if (step > 63 && step < 160 && (pm.s.pm_flags & PMF_ON_GROUND) )
 	{
 		cl.predicted_step = step * 0.125;
@@ -474,9 +474,7 @@ void CL_PredictMovement (void)
 
 
 	// copy results out for rendering
-	cl.predicted_origin[0] = pm.s.origin[0]*0.125;
-	cl.predicted_origin[1] = pm.s.origin[1]*0.125;
-	cl.predicted_origin[2] = pm.s.origin[2]*0.125;
+	VectorCopy(pm.s.origin_f, cl.predicted_origin);
 
 	VectorCopy (pm.viewangles, cl.predicted_angles);
 }

@@ -1884,9 +1884,7 @@ void PutClientInServer (edict_t *ent)
 	if(spawn_landmark)
 		client->ps.pmove.pm_flags = spawn_pm_flags;
 
-	client->ps.pmove.origin[0] = spawn_origin[0]*8;
-	client->ps.pmove.origin[1] = spawn_origin[1]*8;
-	client->ps.pmove.origin[2] = spawn_origin[2]*8;
+	VectorCopy(spawn_origin, client->ps.pmove.origin_f);
 
 	if (deathmatch->value && ((int)dmflags->value & DF_FIXED_FOV))
 	{
@@ -2833,7 +2831,7 @@ void ClientSpycam(edict_t *ent)
 	memset (&pm, 0, sizeof(pm));
 	pm.s = client->ps.pmove;
 	for (i=0 ; i<3 ; i++) {
-		pm.s.origin[i] = ent->s.origin[i]*8;
+		pm.s.origin_f[i] = ent->s.origin[i];
 		client->ps.pmove.delta_angles[i] = 
 			ANGLE2SHORT(client->ps.viewangles[i] - client->resp.cmd_angles[i]);
 	}
@@ -3298,12 +3296,9 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 
 		pm.s = client->ps.pmove;
 
-		for (i=0 ; i<3 ; i++)
-		{
-			pm.s.origin[i] = ent->s.origin[i]*8;
-			pm.s.velocity[i] = ent->velocity[i]*8;
-		}
-
+		VectorCopy(ent->s.origin, pm.s.origin_f);
+		VectorCopy(ent->velocity, pm.s.velocity_f);
+		
 		if (memcmp(&client->old_pmove, &pm.s, sizeof(pm.s)))
 		{
 			pm.snapinitial = true;
@@ -3335,11 +3330,9 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		client->ps.pmove = pm.s;
 		client->old_pmove = pm.s;
 
-		for (i=0 ; i<3 ; i++)
-		{
-			ent->s.origin[i] = pm.s.origin[i]*0.125;
-			ent->velocity[i] = pm.s.velocity[i]*0.125;
-		}
+		VectorCopy(pm.s.origin_f, ent->s.origin);
+		VectorCopy(pm.s.velocity_f, ent->velocity);
+		
 		VectorCopy (pm.mins, ent->mins);
 		VectorCopy (pm.maxs, ent->maxs);
 

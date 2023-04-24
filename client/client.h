@@ -124,11 +124,7 @@ typedef struct
 	usercmd_t	cmd;
 	usercmd_t	cmds[CMD_BACKUP];	// each mesage will send several old cmds
 	int			cmd_time[CMD_BACKUP];	// time sent, for calculating pings
-#ifdef LARGE_MAP_SIZE // larger precision needed
-	int			predicted_origins[CMD_BACKUP][3];	// for debug comparing against server
-#else
-	short		predicted_origins[CMD_BACKUP][3];	// for debug comparing against server
-#endif
+	vec_t		predicted_origins[CMD_BACKUP][3];	// for debug comparing against server
 
 	float		predicted_step;				// for stair up smoothing
 	unsigned	predicted_step_time;

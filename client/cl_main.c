@@ -1630,6 +1630,7 @@ void CL_InitLocal (void)
 	Cmd_AddCommand ("god", NULL);
 	Cmd_AddCommand ("notarget", NULL);
 	Cmd_AddCommand ("noclip", NULL);
+	Cmd_AddCommand ("tcl", NULL); // noclip alias for my gamebryo brain
 	Cmd_AddCommand ("invuse", NULL);
 	Cmd_AddCommand ("invprev", NULL);
 	Cmd_AddCommand ("invnext", NULL);
