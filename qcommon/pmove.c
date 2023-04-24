@@ -62,8 +62,8 @@ float	pm_stopspeed = DEFAULT_STOPSPEED;
 
 float	pm_wateraccelerate = 10;
 float	pm_airaccelerate = 0;
-float	pm_friction = 6;
-float	pm_waterfriction = 1;
+float	pm_friction = 0.8f;
+float	pm_waterfriction = 0.95f;
 
 
 // Knightmare- this function sets the max speed varibles
@@ -392,45 +392,24 @@ Handles both ground friction and water friction
 void PM_Friction (void)
 {
 	float	*vel;
-	float	speed, newspeed, control;
-	float	friction;
-	float	drop;
+	float	friction = 1.f;
 	
 	vel = pml.velocity;
 	
-	speed = sqrt(vel[0]*vel[0] +vel[1]*vel[1] + vel[2]*vel[2]);
-	if (speed < 1)
-	{
-		vel[0] = 0;
-		vel[1] = 0;
-		return;
-	}
-
-	drop = 0;
-
 // apply ground friction
 	if ((pm->groundentity && pml.groundsurface && !(pml.groundsurface->flags & SURF_SLICK) ) || (pml.ladder) )
 	{
 		friction = pm_friction;
-		control = speed < pm_stopspeed ? pm_stopspeed : speed;
-		drop += control*friction*pml.frametime;
 	}
 
 // apply water friction
 	if (pm->waterlevel && !pml.ladder)
-		drop += speed*pm_waterfriction*pm->waterlevel*pml.frametime;
+		friction = pm_waterfriction;
 
 // scale the velocity
-	newspeed = speed - drop;
-	if (newspeed < 0)
-	{
-		newspeed = 0;
-	}
-	newspeed /= speed;
-
-	vel[0] = vel[0] * newspeed;
-	vel[1] = vel[1] * newspeed;
-	vel[2] = vel[2] * newspeed;
+	vel[0] = vel[0] * friction;
+	vel[1] = vel[1] * friction;
+	vel[2] = vel[2] * friction;
 }
 
 
@@ -528,11 +507,6 @@ void PM_AddCurrents (vec3_t	wishvel)
 		//		wishvel[1] = -25;
 		//	else if (wishvel[1] > 25)
 		//		wishvel[1] = 25;
-	}
-	if (pml.ladder_jump) {
-		//	wishvel[0] += pml.forward[0] * 800;
-		//	wishvel[1] += pml.forward[1] * 800;
-		//	wishvel[2] += pml.forward[2] * 800;
 	}
 
 
@@ -740,6 +714,12 @@ void PM_AirMove (void)
 		// add gravity
 		pml.velocity[2] -= pm->s.gravity * pml.frametime;
 		PM_StepSlideMove ();
+	}
+
+	if (pml.ladder_jump) {
+		pml.velocity[0] += pml.forward[0]*280.f;
+		pml.velocity[1] += pml.forward[1]*280.f;
+		pml.velocity[2] += pml.forward[2]*280.f + 80.f;
 	}
 }
 

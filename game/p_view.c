@@ -282,12 +282,12 @@ void SV_CalcViewOffset (edict_t *ent)
 		// add angles based on bob
 	
 		delta = bobfracsin * bob_pitch->value * xyspeed;
-		if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			delta *= 6;		// crouching
+		//	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+		//		delta *= 6;		// crouching
 		angles[PITCH] += delta;
 		delta = bobfracsin * bob_roll->value * xyspeed;
-		if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			delta *= 6;		// crouching
+		//		if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+		//			delta *= 6;		// crouching
 		if (bobcycle & 1)
 			delta = -delta;
 		angles[ROLL] += delta;
@@ -326,7 +326,7 @@ void SV_CalcViewOffset (edict_t *ent)
 	if (bob > 6)
 		bob = 6;
 //	gi.DebugGraph (bob *2, 255);
-	v[2] += bob;
+	v[2] += bob * 4;
 
 	// add kick offset
 
