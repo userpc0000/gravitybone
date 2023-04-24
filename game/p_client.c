@@ -3677,10 +3677,7 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 
 	if (ent->client->ps.stats[STAT_WEAPBOX] > 0)
 		ent->client->ps.stats[STAT_WEAPBOX]--;
-
-
-	
-
+		
 	//gi.dprintf("weapbox: %i\n",ent->client->ps.stats[STAT_WEAPBOX]);
 
 	//gi.dprintf("myhealth: %d\n",ent->health);

@@ -266,6 +266,10 @@ void SV_WritePlayerstateToClient (client_frame_t *from, client_frame_t *to, size
 		|| ps->pmove.delta_angles[2] != ops->pmove.delta_angles[2] )
 		pflags |= PS_M_DELTA_ANGLES;
 
+	if (ps->pmove.ladder_norm[0] != ops->pmove.ladder_norm[0]
+		|| ps->pmove.ladder_norm[1] != ops->pmove.ladder_norm[1]
+		|| ps->pmove.ladder_norm[2] != ops->pmove.ladder_norm[2] )
+		pflags |= PS_M_LADDER_NORM;
 
 	if (ps->viewoffset[0] != ops->viewoffset[0]
 		|| ps->viewoffset[1] != ops->viewoffset[1]
@@ -376,6 +380,13 @@ void SV_WritePlayerstateToClient (client_frame_t *from, client_frame_t *to, size
 		MSG_WriteShort (msg, ps->pmove.delta_angles[0]);
 		MSG_WriteShort (msg, ps->pmove.delta_angles[1]);
 		MSG_WriteShort (msg, ps->pmove.delta_angles[2]);
+	}
+
+	if (pflags & PS_M_LADDER_NORM)
+	{
+		MSG_WriteFloat (msg, ps->pmove.ladder_norm[0]);
+		MSG_WriteFloat (msg, ps->pmove.ladder_norm[1]);
+		MSG_WriteFloat (msg, ps->pmove.ladder_norm[2]);
 	}
 
 	//

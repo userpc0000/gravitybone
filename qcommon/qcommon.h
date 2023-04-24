@@ -280,6 +280,7 @@ enum clc_ops_e
 #define	PS_M_FLAGS			(1<<4)
 #define	PS_M_GRAVITY		(1<<5)
 #define	PS_M_DELTA_ANGLES	(1<<6)
+#define	PS_M_LADDER_NORM	(1<<24)
 
 #define	PS_VIEWOFFSET		(1<<7)
 #define	PS_VIEWANGLES		(1<<8)

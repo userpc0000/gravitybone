@@ -42,7 +42,7 @@ typedef struct
 	int			groundcontents;
 
 	vec3_t		previous_origin;
-	qboolean	ladder;
+	qboolean	ladder, ladder_jump;
 } pml_t;
 
 pmove_t		*pm;
@@ -529,6 +529,11 @@ void PM_AddCurrents (vec3_t	wishvel)
 		//	else if (wishvel[1] > 25)
 		//		wishvel[1] = 25;
 	}
+	if (pml.ladder_jump) {
+		//	wishvel[0] += pml.forward[0] * 800;
+		//	wishvel[1] += pml.forward[1] * 800;
+		//	wishvel[2] += pml.forward[2] * 800;
+	}
 
 
 	//
@@ -695,9 +700,24 @@ void PM_AirMove (void)
 	}
 	else if ( pm->groundentity )
 	{	// walking on ground
-		pml.velocity[2] = 0; //!!! this is before the accel
-		PM_Accelerate (wishdir, wishspeed, pm_accelerate);
 
+		vec3_t cross_a, cross_b;
+		CrossProduct(pml.right, pml.groundplane.normal, cross_a);
+		VectorInverse(cross_a);
+		CrossProduct(cross_a, pml.groundplane.normal, cross_b);
+		
+		vec3_t ground_vel;	
+		for (i=0 ; i<3 ; i++)
+			ground_vel[i] = cross_a[i]*fmove + cross_b[i]*smove;
+		VectorNormalize(ground_vel);
+
+
+
+		//	pml.velocity[2] = 0; //!!! this is before the accel
+		//	PM_Accelerate (wishdir, wishspeed, pm_accelerate);
+		PM_Accelerate (ground_vel, wishspeed, pm_accelerate);
+
+		/*
 // PGM	-- fix for negative trigger_gravity fields
 //		pml.velocity[2] = 0;
 		if(pm->s.gravity > 0)
@@ -705,6 +725,7 @@ void PM_AirMove (void)
 		else
 			pml.velocity[2] -= pm->s.gravity * pml.frametime;
 // PGM
+		*/
 
 		if (!pml.velocity[0] && !pml.velocity[1])
 			return;
@@ -927,7 +948,7 @@ void PM_CheckSpecialMovement (void)
 
 	//assert(pml.ladder == false);
 	pml.ladder = (pm->s.pm_flags & PMF_ON_LADDER) > 0;
-	
+	pml.ladder_jump = false;
 
 	// check for ladder
 	flatforward[0] = pml.forward[0];
@@ -942,12 +963,12 @@ void PM_CheckSpecialMovement (void)
 	//if ((trace.fraction < 1) && (trace.contents & CONTENTS_LADDER))
 	if ((trace.fraction < 0.12f) && (trace.contents & CONTENTS_LADDER)) {
 		pml.ladder = true;
-		//	VectorCopy(trace.plane.normal, pm->s.ladder_norm);
-		//	pm->s.ladder_norm[0] = -pm->s.ladder_norm[0];
-		//	pm->s.ladder_norm[1] = -pm->s.ladder_norm[1];
-		//	pm->s.ladder_norm[2] = -pm->s.ladder_norm[2];
+		VectorCopy(trace.plane.normal, pm->s.ladder_norm);
+		pm->s.ladder_norm[0] = -pm->s.ladder_norm[0];
+		pm->s.ladder_norm[1] = -pm->s.ladder_norm[1];
+		pm->s.ladder_norm[2] = -pm->s.ladder_norm[2];
 
-		VectorCopy(flatforward, pm->s.ladder_norm);
+		//VectorCopy(flatforward, pm->s.ladder_norm);
 	}
 
 	// perform a new trace against the reverse of the ladder normal
@@ -965,8 +986,10 @@ void PM_CheckSpecialMovement (void)
 			pml.ladder = false;
 
 		// release from ladder if jump is held (and not looking at the ladder)
-		if (pm->cmd.upmove != 0)
+		if (pm->cmd.upmove != 0) {
 			pml.ladder = false;
+			pml.ladder_jump = true;
+		}
 	}
 
 

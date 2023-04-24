@@ -455,10 +455,10 @@ void CL_PredictMovement (void)
 	{
 		frame = ack & (CMD_BACKUP-1);
 		cmd = &cl.cmds[frame];
-
+	
 		pm.cmd = *cmd;
 		Pmove (&pm);
-
+	
 		// save for debug checking
 		VectorCopy (pm.s.origin, cl.predicted_origins[frame]);
 	}

@@ -790,6 +790,13 @@ void CL_ParsePlayerstate (frame_t *oldframe, frame_t *newframe)
 			state->pmove.delta_angles[2] = MSG_ReadShort (&net_message);
 		}
 
+		if (flags & PS_M_LADDER_NORM)
+		{
+			state->pmove.ladder_norm[0] = MSG_ReadFloat(&net_message);
+			state->pmove.ladder_norm[1] = MSG_ReadFloat(&net_message);
+			state->pmove.ladder_norm[2] = MSG_ReadFloat(&net_message);
+		}
+
 		if (cl.attractloop)
 			state->pmove.pm_type = PM_FREEZE;		// demo playback
 

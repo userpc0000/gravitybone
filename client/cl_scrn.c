@@ -1678,6 +1678,7 @@ void SCR_ExecuteLayoutString (char *s)
 	value = cl.frame.playerstate.stats[STAT_HUDMSG];
 
 	// Sirennus: temp
+	//*
 	GL_Enable(GL_BLEND);
 	GL_BlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -1687,11 +1688,11 @@ void SCR_ExecuteLayoutString (char *s)
 		viddef.width,
 		viddef.height,
 		"/pics/vignette.tga",
-		0.7);
+		0.25);
 
 	GL_Enable(GL_BLEND);
 	GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	//*/
 
     if (value == 1)
 	{
