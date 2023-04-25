@@ -42,7 +42,7 @@ typedef struct
 	int			groundcontents;
 
 	vec3_t		previous_origin;
-	qboolean	ladder, ladder_jump;
+	qboolean	ladder, ladder_jump, ledge_grabbing;
 } pml_t;
 
 pmove_t		*pm;
@@ -62,8 +62,8 @@ float	pm_stopspeed = DEFAULT_STOPSPEED;
 
 float	pm_wateraccelerate = 10;
 float	pm_airaccelerate = 0;
-float	pm_friction = 0.8f;
-float	pm_waterfriction = 0.95f;
+float	pm_friction = 8.f;
+float	pm_waterfriction = 2.f;
 
 
 // Knightmare- this function sets the max speed varibles
@@ -407,9 +407,9 @@ void PM_Friction (void)
 		friction = pm_waterfriction;
 
 // scale the velocity
-	vel[0] = vel[0] * friction;
-	vel[1] = vel[1] * friction;
-	vel[2] = vel[2] * friction;
+	vel[0] = vel[0] - (vel[0] * (friction * pml.frametime));
+	vel[1] = vel[1] - (vel[1] * (friction * pml.frametime));
+	vel[2] = vel[2] - (vel[2] * (friction * pml.frametime));
 }
 
 
@@ -717,9 +717,12 @@ void PM_AirMove (void)
 	}
 
 	if (pml.ladder_jump) {
-		pml.velocity[0] += pml.forward[0]*280.f;
-		pml.velocity[1] += pml.forward[1]*280.f;
-		pml.velocity[2] += pml.forward[2]*280.f + 80.f;
+		pml.velocity[0] += pml.forward[0]*200.f;
+		pml.velocity[1] += pml.forward[1]*200.f;
+		pml.velocity[2] += pml.forward[2]*200.f + 80.f;
+	}
+	if (pml.ledge_grabbing) {
+		pml.velocity[2] = 80;
 	}
 }
 
@@ -921,7 +924,7 @@ void PM_CheckSpecialMovement (void)
 	vec3_t	spot;
 	int		cont;
 	vec3_t	flatforward;
-	trace_t	trace;
+	trace_t	trace_view_dir, trace_ladder_dir;
 
 	if (pm->s.pm_time)
 		return;
@@ -929,6 +932,7 @@ void PM_CheckSpecialMovement (void)
 	//assert(pml.ladder == false);
 	pml.ladder = (pm->s.pm_flags & PMF_ON_LADDER) > 0;
 	pml.ladder_jump = false;
+	pml.ledge_grabbing = false;
 
 	// check for ladder
 	flatforward[0] = pml.forward[0];
@@ -937,38 +941,62 @@ void PM_CheckSpecialMovement (void)
 	VectorNormalize (flatforward);
 
 	VectorMA (pml.origin, 1, flatforward, spot);
-	trace = pm->trace (pml.origin, pm->mins, pm->maxs, spot);
+	trace_view_dir = pm->trace (pml.origin, pm->mins, pm->maxs, spot);
+	float trace_dot = DotProduct(trace_view_dir.plane.normal, pml.forward);
 	
 	// handle getting on the ladder
 	//if ((trace.fraction < 1) && (trace.contents & CONTENTS_LADDER))
-	if ((trace.fraction < 0.12f) && (trace.contents & CONTENTS_LADDER)) {
-		pml.ladder = true;
-		VectorCopy(trace.plane.normal, pm->s.ladder_norm);
-		pm->s.ladder_norm[0] = -pm->s.ladder_norm[0];
-		pm->s.ladder_norm[1] = -pm->s.ladder_norm[1];
-		pm->s.ladder_norm[2] = -pm->s.ladder_norm[2];
-
-		//VectorCopy(flatforward, pm->s.ladder_norm);
+	if ((trace_view_dir.fraction < 1.f) && (trace_view_dir.contents & CONTENTS_LADDER)) {
+		if (trace_dot < -0.85f) {
+			pml.ladder = true;
+			VectorCopy(trace_view_dir.plane.normal, pm->s.ladder_norm);
+			pm->s.ladder_norm[0] = -pm->s.ladder_norm[0];
+			pm->s.ladder_norm[1] = -pm->s.ladder_norm[1];
+			pm->s.ladder_norm[2] = -pm->s.ladder_norm[2];
+		}
 	}
-
 	// perform a new trace against the reverse of the ladder normal
 	else if (pml.ladder) {
-		//	flatforward[0] = -pm->s.ladder_norm[0];
-		//	flatforward[1] = -pm->s.ladder_norm[1];
-		//	flatforward[2] = 0;
-		//	VectorNormalize(flatforward);
-
 		VectorMA(pml.origin, 1, pm->s.ladder_norm, spot);
-		trace = pm->trace(pml.origin, pm->mins, pm->maxs, spot);
+		trace_ladder_dir = pm->trace(pml.origin, pm->mins, pm->maxs, spot);
 
 		// release from the ladder if the trace hit no ladder
-		if (!(trace.contents & CONTENTS_LADDER))
+		if (!(trace_ladder_dir.contents & CONTENTS_LADDER))
 			pml.ladder = false;
 
 		// release from ladder if jump is held (and not looking at the ladder)
-		if (pm->cmd.upmove != 0) {
+		if (pm->cmd.upmove != 0 && !(trace_view_dir.contents & CONTENTS_LADDER)) {
 			pml.ladder = false;
 			pml.ladder_jump = true;
+		}
+	}
+	// only handle ledge grab if we're not romantically involved with a ladder
+	else if ((trace_view_dir.fraction < 1.f) && (trace_view_dir.contents & CONTENTS_SOLID)) {
+		
+
+		if (pm->s.pm_flags & ~PMF_ON_GROUND) {
+			// very lenient grab
+			if (trace_dot < -0.6f) {
+				
+				// trace from almost the top of our box
+				vec3_t origin_up;
+				VectorCopy(pml.origin, origin_up);
+				origin_up[2] += pm->maxs[2] * 0.9f;
+				vec3_t spot_up;
+				VectorCopy(spot, spot_up);
+				spot_up[2] += pm->maxs[2] * 0.9f;
+
+				
+
+				trace_view_dir = pm->trace (origin_up, pm->mins, pm->maxs, spot_up);
+
+				if (!(trace_view_dir.contents & CONTENTS_SOLID)) {
+					
+					Com_Printf ("You are ready to ledge grab, dot %f\n", trace_dot);
+
+					//pml.ledge_grabbing = true;
+				}
+			}
 		}
 	}
 
@@ -1010,7 +1038,7 @@ PM_FlyMove
 */
 void PM_FlyMove (qboolean doclip)
 {
-	float	speed, drop, friction, control, newspeed;
+	float	speed;
 	float	currentspeed, addspeed, accelspeed;
 	int			i;
 	vec3_t		wishvel;
@@ -1023,28 +1051,9 @@ void PM_FlyMove (qboolean doclip)
 	pm->viewheight = 22;
 
 	// friction
-
-	speed = VectorLength (pml.velocity);
-	if (speed < 1)
-	{
-		VectorCopy (vec3_origin, pml.velocity);
-	}
-	else
-	{
-		drop = 0;
-
-		friction = pm_friction*1.5;	// extra friction
-		control = speed < pm_stopspeed ? pm_stopspeed : speed;
-		drop += control*friction*pml.frametime;
-
-		// scale the velocity
-		newspeed = speed - drop;
-		if (newspeed < 0)
-			newspeed = 0;
-		newspeed /= speed;
-
-		VectorScale (pml.velocity, newspeed, pml.velocity);
-	}
+	pml.velocity[0] = pml.velocity[0] - (pml.velocity[0] * (pm_friction * pml.frametime));
+	pml.velocity[1] = pml.velocity[1] - (pml.velocity[1] * (pm_friction * pml.frametime));
+	pml.velocity[2] = pml.velocity[2] - (pml.velocity[2] * (pm_friction * pml.frametime));
 
 	// accelerate
 	fmove = pm->cmd.forwardmove;

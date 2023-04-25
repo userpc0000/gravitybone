@@ -213,8 +213,8 @@ void lithium_defaults(void)
 	falling_armor_damage = gi.cvar("falling_armor_damage", "1", CVAR_ARCHIVE);
 	player_jump_sounds = gi.cvar("player_jump_sounds", "1", CVAR_ARCHIVE);
 
-	player_max_speed = gi.cvar("player_max_speed", "300", 0);
-	player_crouch_speed = gi.cvar("player_crouch_speed", "100", 0); 
+	player_max_speed = gi.cvar("player_max_speed", "180", 0);
+	player_crouch_speed = gi.cvar("player_crouch_speed", "80", 0); 
 	player_accel = gi.cvar("player_accel", "10", 0);
 	player_stopspeed = gi.cvar("player_stopspeed", "100", 0);
 

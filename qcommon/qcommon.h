@@ -748,8 +748,10 @@ Common between server and client so prediction matches
 ==============================================================
 */
 
-#define DEFAULT_MAXSPEED	300
-#define DEFAULT_DUCKSPEED	100
+//#define DEFAULT_MAXSPEED	300
+#define DEFAULT_MAXSPEED	180
+//#define DEFAULT_DUCKSPEED	100
+#define DEFAULT_DUCKSPEED	80
 #define DEFAULT_WATERSPEED	400
 #define DEFAULT_ACCELERATE	10
 #define DEFAULT_STOPSPEED	100

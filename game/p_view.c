@@ -1408,7 +1408,9 @@ void ClientEndServerFrame (edict_t *ent)
 	bobtime = (current_client->bobtime += bobmove);
 
 	if (current_client->ps.pmove.pm_flags & PMF_DUCKED)
-		bobtime *= 4;
+		bobtime *= 3;
+	else
+		bobtime *= 2;
 
 	bobcycle = (int)bobtime;
 
