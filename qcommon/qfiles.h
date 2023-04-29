@@ -497,6 +497,7 @@ typedef struct
 #define	SURF_FLOWING	0x40	// scroll towards angle
 #define	SURF_NODRAW		0x80	// don't bother referencing the texture
 
+#define	SURF_FULLBRIGHT 0x400	// don't light this face
 
 
 

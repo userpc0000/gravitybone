@@ -507,6 +507,8 @@ COLLISION DETECTION
 #define	SURF_HINT		0x100	// make a primary bsp splitter
 #define	SURF_SKIP		0x200	// completely ignore, allowing non-closed brushes
 
+#define	SURF_FULLBRIGHT 0x400	// don't light this face
+
 // Lazarus surface flags for footstep sounds:
 #define SURF_METAL		0x00000400	// metal floor
 #define SURF_DIRT		0x00000800	// dirt, sand, rock

@@ -70,7 +70,6 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 {
 	WNDCLASS		wc;
 	RECT			r;
-	cvar_t			*vid_xpos, *vid_ypos;
 	int				stylebits;
 	int				x, y, w, h;
 	int				exstyle;
@@ -132,26 +131,28 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 	}
 	else
 	{
-		vid_xpos = Cvar_Get ("vid_xpos", "0", 0);
-		vid_ypos = Cvar_Get ("vid_ypos", "0", 0);
-		x = vid_xpos->value;
-		y = vid_ypos->value;
+		// sirennus - centre window
+		RECT rect;
+		GetClientRect(GetDesktopWindow(), &rect);
+		x = (rect.right / 2) - (width / 2);
+		// slight height add to attempt to dodge the taskbar
+		y = (rect.bottom / 2) - (height / 2) - 32;
 	}
 
-	glw_state.hWnd = CreateWindowEx (
-		 exstyle, 
-		 WINDOW_CLASS_NAME,
-		 "PILE",
-		 stylebits,
-		 x, y, w, h,
-		 NULL,
-		 NULL,
-		 glw_state.hInstance,
-		 NULL);
+	glw_state.hWnd = CreateWindowEx(
+		exstyle,
+		WINDOW_CLASS_NAME,
+		"PILE",
+		stylebits,
+		x, y, w, h,
+		NULL,
+		NULL,
+		glw_state.hInstance,
+		NULL);
 
 	if (!glw_state.hWnd)
-		VID_Error (ERR_FATAL, "Couldn't create window");
-	
+		VID_Error(ERR_FATAL, "Couldn't create window");
+
 	ShowWindow( glw_state.hWnd, SW_SHOW );
 	UpdateWindow( glw_state.hWnd );
 

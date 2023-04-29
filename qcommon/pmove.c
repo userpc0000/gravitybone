@@ -942,7 +942,7 @@ void PM_CheckSpecialMovement (void)
 
 	VectorMA (pml.origin, 1, flatforward, spot);
 	trace_view_dir = pm->trace (pml.origin, pm->mins, pm->maxs, spot);
-	float trace_dot = DotProduct(trace_view_dir.plane.normal, pml.forward);
+	float trace_dot = DotProduct(trace_view_dir.plane.normal, flatforward);
 	
 	// handle getting on the ladder
 	//if ((trace.fraction < 1) && (trace.contents & CONTENTS_LADDER))
@@ -971,34 +971,34 @@ void PM_CheckSpecialMovement (void)
 		}
 	}
 	// only handle ledge grab if we're not romantically involved with a ladder
-	else if ((trace_view_dir.fraction < 1.f) && (trace_view_dir.contents & CONTENTS_SOLID)) {
-		
-
-		if (pm->s.pm_flags & ~PMF_ON_GROUND) {
-			// very lenient grab
-			if (trace_dot < -0.6f) {
-				
-				// trace from almost the top of our box
-				vec3_t origin_up;
-				VectorCopy(pml.origin, origin_up);
-				origin_up[2] += pm->maxs[2] * 0.9f;
-				vec3_t spot_up;
-				VectorCopy(spot, spot_up);
-				spot_up[2] += pm->maxs[2] * 0.9f;
-
-				
-
-				trace_view_dir = pm->trace (origin_up, pm->mins, pm->maxs, spot_up);
-
-				if (!(trace_view_dir.contents & CONTENTS_SOLID)) {
-					
-					Com_Printf ("You are ready to ledge grab, dot %f\n", trace_dot);
-
-					//pml.ledge_grabbing = true;
-				}
-			}
-		}
-	}
+	//	else if ((trace_view_dir.fraction < 1.f) && (trace_view_dir.contents & CONTENTS_SOLID)) {
+	//		
+	//	
+	//		if (pm->s.pm_flags & ~PMF_ON_GROUND) {
+	//			// very lenient grab
+	//			if (trace_dot < -0.6f) {
+	//				
+	//				// trace from almost the top of our box
+	//				vec3_t origin_up;
+	//				VectorCopy(pml.origin, origin_up);
+	//				origin_up[2] += pm->maxs[2] * 0.9f;
+	//				vec3_t spot_up;
+	//				VectorCopy(spot, spot_up);
+	//				spot_up[2] += pm->maxs[2] * 0.9f;
+	//	
+	//				
+	//	
+	//				trace_view_dir = pm->trace (origin_up, pm->mins, pm->maxs, spot_up);
+	//	
+	//				if (!(trace_view_dir.contents & CONTENTS_SOLID)) {
+	//					
+	//					Com_Printf ("You are ready to ledge grab, dot %f\n", trace_dot);
+	//	
+	//					pml.ledge_grabbing = true;
+	//				}
+	//			}
+	//		}
+	//	}
 
 
 	// update ladder state

@@ -29,9 +29,9 @@ CL_CheckPredictionError
 void CL_CheckPredictionError (void)
 {
 	int		frame;
-	int		delta[3];
+	vec_t	delta[3];
 	int		i;
-	int		len;
+	vec_t	len;
 
 	if (!cl_predict->value || (cl.frame.playerstate.pmove.pm_flags & PMF_NO_PREDICTION))
 		return;
@@ -45,7 +45,7 @@ void CL_CheckPredictionError (void)
 
 	// save the prediction error for interpolation
 	len = abs(delta[0]) + abs(delta[1]) + abs(delta[2]);
-	if (len > 640)	// 80 world units
+	if (len > 640.f)	// 80 world units
 	{	// a teleport or something
 		VectorClear (cl.prediction_error);
 	}
@@ -59,7 +59,7 @@ void CL_CheckPredictionError (void)
 
 		// save for error itnerpolation
 		for (i=0 ; i<3 ; i++)
-			cl.prediction_error[i] = delta[i]*0.125;
+			cl.prediction_error[i] = delta[i];
 	}
 }
 
