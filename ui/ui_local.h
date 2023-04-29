@@ -228,7 +228,7 @@ void FreeFileList( char **list, int n );
 qboolean	ItemInList (char *check, int num, char **list);
 void		InsertInList (char **list, char *insert, int len, int start );
 void UI_AddButton (buttonmenuobject_t *thisObj, int index, float x, float y, float w, float h);
-void UI_AddMainButton (mainmenuobject_t *thisObj, int index, int x, int y, char *name);
+void UI_AddMainButton (mainmenuobject_t *thisObj, int index, int x, int y, char *name, float scale);
 void UI_RefreshCursorMenu (void);
 void UI_RefreshCursorLink (void);
 void UI_RefreshCursorButtons (void);

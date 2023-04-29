@@ -46,7 +46,7 @@ vrect_t		scr_vrect;		// position of render window on screen
 
 cvar_t		*scr_viewsize;
 cvar_t		*scr_conspeed;
-cvar_t		*scr_centertime;
+//cvar_t		*scr_centertime;
 cvar_t		*scr_showturtle;
 cvar_t		*scr_showpause;
 cvar_t		*scr_printspeed;
@@ -575,7 +575,8 @@ void SCR_CenterPrint (char *str)
 	int		i, j, l;
 
 	strncpy (scr_centerstring, str, sizeof(scr_centerstring)-1);
-	scr_centertime_off = scr_centertime->value;
+	//scr_centertime_off = scr_centertime->value;
+	scr_centertime_off = 10.f;
 	scr_centertime_end = scr_centertime_off;
 	scr_centertime_start = cl.time;
 
@@ -632,7 +633,7 @@ void SCR_DrawCenterString (void)
 	int		y; //, x;
 	int		remaining;
 	// added Psychospaz's fading centerstrings
-	int		alpha = 255 * ( 1 - (((cl.time + (scr_centertime->value-1) - scr_centertime_start) / 1000.0) / (scr_centertime_end)));		
+	int		alpha = 255 * ( 1 - (((cl.time + (10-1) - scr_centertime_start) / 1000.0) / (scr_centertime_end)));		
 
 	// the finale prints the characters one at a time
 	remaining = 9999;
@@ -804,8 +805,6 @@ void SCR_Init (void)
 	scr_conspeed = Cvar_Get ("scr_conspeed", "3", 0);
 	scr_showturtle = Cvar_Get ("scr_showturtle", "0", 0);
 	scr_showpause = Cvar_Get ("scr_showpause", "1", 0);
-	// Knightmare- increased for fade
-	scr_centertime = Cvar_Get ("scr_centertime", "3.5", 0);
 	scr_printspeed = Cvar_Get ("scr_printspeed", "8", 0);
 	scr_netgraph = Cvar_Get ("netgraph", "0", 0);
 	scr_netgraph_pos = Cvar_Get ("netgraph_pos", "0", CVAR_ARCHIVE);
@@ -1679,8 +1678,21 @@ void SCR_ExecuteLayoutString (char *s)
 
 	// Sirennus: temp
 	//*
-	GL_Enable(GL_BLEND);
-	GL_BlendFunc(GL_SRC_ALPHA, GL_ONE);
+	//	GL_Enable(GL_BLEND);
+	//	GL_BlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+	static float vignette_intensity = 0.f;
+	float ff = -cl.viewangles[PITCH];
+	if (ff < -30.f) ff = -30.f;
+
+	if (cl.frame.playerstate.pmove.pm_flags & PMF_DUCKED) {
+		vignette_intensity += 0.1f;
+		if (vignette_intensity > 1.f) vignette_intensity = 1.f;
+	}
+	else {
+		vignette_intensity -= 0.1f;
+		if (vignette_intensity < 0.f) vignette_intensity = 0.f;
+	}
 
 	R_DrawStretchPic (
 		0,
@@ -1688,10 +1700,10 @@ void SCR_ExecuteLayoutString (char *s)
 		viddef.width,
 		viddef.height,
 		"/pics/vignette.tga",
-		0.25);
+		((90.f - ff) / 90.f) * vignette_intensity);
 
-	GL_Enable(GL_BLEND);
-	GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//	GL_Enable(GL_BLEND);
+	//	GL_BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//*/
 
     if (value == 1)
@@ -1713,7 +1725,14 @@ void SCR_ExecuteLayoutString (char *s)
 			"find_exit");
 	}
 
-	
+	char tmpstr[32];
+	sprintf(tmpstr, "hlo world pls");
+
+	//Hud_DrawString (
+	//	viddef.width / 2,
+	//	viddef.height / 2,
+	//	,
+	//	255);
 
 	//selected = cl.frame.playerstate.stats[STAT_SELECTED_ITEM];
 	//Com_Printf ("%i\n",cl.frame.playerstate.stats[STAT_SELECTED_ITEM]);

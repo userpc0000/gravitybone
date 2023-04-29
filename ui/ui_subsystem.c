@@ -142,12 +142,14 @@ UI_AddMainButton
 From Q2max
 =============
 */
-void UI_AddMainButton (mainmenuobject_t *thisObj, int index, int x, int y, char *name)
+void UI_AddMainButton (mainmenuobject_t *thisObj, int index, int x, int y, char *name, float scale)
 {
 	int		w, h;
 	float	x1, y1, w1, h1;
 
 	R_DrawGetPicSize (&w, &h, name);
+	w *= scale;
+	h *= scale;
 	
 	x1 = x; y1 = y; w1 = w; h1 = h;
 	SCR_AdjustFrom640 (&x1, &y1, &w1, &h1, ALIGN_CENTER);

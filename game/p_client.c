@@ -2088,6 +2088,7 @@ called when a client has finished connecting, and is ready
 to be placed into the game.  This will happen every level load.
 ============
 */
+void PF_centerprintf (edict_t *ent, char *fmt, ...);
 void ClientBegin (edict_t *ent)
 {
 	int		i;
@@ -2178,6 +2179,9 @@ void ClientBegin (edict_t *ent)
 			}
 		}
 	}
+
+
+	PF_centerprintf(ent, level.level_name);
 
 	// make sure all view stuff is valid
 	ClientEndServerFrame (ent);

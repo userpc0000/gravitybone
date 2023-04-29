@@ -137,6 +137,11 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 		x = (rect.right / 2) - (width / 2);
 		// slight height add to attempt to dodge the taskbar
 		y = (rect.bottom / 2) - (height / 2) - 32;
+
+		// set windowpos cvars for posterity
+		char out_buf[128];
+		Cvar_Set ("vid_xpos", itoa(x, out_buf, 10), 0);
+		Cvar_Set ("vid_ypos", itoa(y, out_buf, 10), 0);
 	}
 
 	glw_state.hWnd = CreateWindowEx(

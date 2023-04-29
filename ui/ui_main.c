@@ -57,24 +57,10 @@ char *main_names[] =
 FindMenuCoords
 =============
 */
-void FindMenuCoords (int *xoffset, int *ystart, int *totalheight, int *widest)
+void FindMenuCoords (int *xoffset, int *ystart)
 {
-	int w, h, i;
-
-	*totalheight = 0;
-	*widest = -1;
-
-	for (i = 0; main_names[i] != 0; i++)
-	{
-		R_DrawGetPicSize (&w, &h, main_names[i]);
-		if (w > *widest)
-			*widest = w;
-		*totalheight += (h + 12);
-	}
-
-	//*xoffset = (SCREEN_WIDTH - *widest + 70) * 0.5;
-	*xoffset = (SCREEN_WIDTH - *widest + 70) * 0.8;
-	*ystart = SCREEN_HEIGHT*0.5 - 100;
+	*xoffset = SCREEN_WIDTH / 2 - 48;
+	*ystart = SCREEN_HEIGHT / 2 + 60;
 }
 
 
@@ -123,21 +109,20 @@ void M_Main_Draw (void)
 	int w, h, last_h;
 	int ystart;
 	int	xoffset;
-	int widest = -1;
-	int totalheight = 0;
 	char litname[80];
 	int selnum;
 
-	FindMenuCoords (&xoffset, &ystart, &totalheight, &widest);
+	FindMenuCoords (&xoffset, &ystart);
 
 	for (i = 0; main_names[i] != 0; i++)
 	{
+
 		if (i != m_main_cursor)
 		{
 			R_DrawGetPicSize (&w, &h, main_names[i]);
 			SCR_DrawPic (xoffset,
-				(ystart + i*40+3),
-				w*0.75, h*0.75,
+				(ystart + i*40),
+				w*0.375, h*0.375,
 				ALIGN_CENTER, main_names[i], 0.6);
 
 			
@@ -150,39 +135,26 @@ void M_Main_Draw (void)
 
 	//strcat (litname, "_sel");
 	R_DrawGetPicSize (&w, &h, litname);
-	SCR_DrawPic (xoffset+5*sin(anglemod(cl.time*0.005)) ,
-		(ystart + m_main_cursor*40+3),
-		w*0.75, h*0.75,
+	SCR_DrawPic (xoffset,
+		(ystart + m_main_cursor*40),
+		w*0.375, h*0.375,
 		ALIGN_CENTER, litname, 1.0);
+	SCR_DrawPic (xoffset - 1.f*sin(anglemod(cl.time*0.005)),
+		(ystart + m_main_cursor*40),
+		w*0.375 + 2.f*sin(anglemod(cl.time*0.005)), h*0.375,
+		ALIGN_CENTER, "m_main_selected", 1.0);
+
 
 	//UI_DrawMainCursor (xoffset-25, ystart+(m_main_cursor*40+1), (int)(cls.realtime/100)%NUM_CURSOR_FRAMES);
 
 	R_DrawGetPicSize (&w, &h, "m_main_plaque");
 	w *= 0.5;
 	h *= 0.5;
-	SCR_DrawPic (xoffset-(w/2+300), ystart *1.1, w, h, ALIGN_CENTER, "m_main_plaque", 1.0);
+	//SCR_DrawPic (xoffset-(w/2+300), ystart *1.1, w, h, ALIGN_CENTER, "m_main_plaque", 1.0);
+	//SCR_DrawPic ((viddef.width) / 2, (viddef.height) / 2, w, h, ALIGN_CENTER, "m_main_plaque", 1.0);
+	SCR_DrawPic ((SCREEN_WIDTH - w) / 2, (SCREEN_HEIGHT - h) / 2 - 80, w, h, ALIGN_CENTER, "m_main_plaque", 1.0);
 	last_h = h;
-
-
-
-	if (cl.cinematictime > 0 || cls.state == ca_disconnected)
-	{
-		//zzz
-		char	name[16];
-		Com_sprintf (name, sizeof(name), "m_icon%i", selnum+1);
-
-		R_DrawGetPicSize (&w, &h, name);
-		w *= 0.5;
-		h *= 0.5;
-		SCR_DrawPic (xoffset-(w/2+320),
-			ystart *1.8,
-			w, h,
-			ALIGN_CENTER, name, 1);
-
-		//0.2*sin(anglemod(cl.time*0.001))
-	}
-
-
+	
 	//R_DrawGetPicSize (&w, &h, "m_main_logo");
 	//SCR_DrawPic (xoffset-(w/2+50), ystart+last_h+20, w, h, ALIGN_CENTER, "m_main_logo", 1.0);
 }
@@ -229,8 +201,6 @@ void UI_CheckMainMenuMouse (void)
 {
 	int ystart;
 	int	xoffset;
-	int widest;
-	int totalheight;
 	int i, oldhover;
 	char *sound = NULL;
 	mainmenuobject_t buttons[MAIN_ITEMS];
@@ -238,9 +208,9 @@ void UI_CheckMainMenuMouse (void)
 	oldhover = MainMenuMouseHover;
 	MainMenuMouseHover = 0;
 
-	FindMenuCoords(&xoffset, &ystart, &totalheight, &widest);
+	FindMenuCoords(&xoffset, &ystart);
 	for (i = 0; main_names[i] != 0; i++)
-		UI_AddMainButton (&buttons[i], i, xoffset, ystart+(i*40+3), main_names[i]);
+		UI_AddMainButton (&buttons[i], i, xoffset, ystart+(i*40), main_names[i], 0.375f);
 
 	// Exit with double click 2nd mouse button
 	if (!cursor.buttonused[MOUSEBUTTON2] && cursor.buttonclicks[MOUSEBUTTON2]==2)

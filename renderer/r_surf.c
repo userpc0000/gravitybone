@@ -1505,6 +1505,10 @@ void R_RecursiveWorldNode (mnode_t *node)
 		}
 		else if (gl_config.multitexture && !(surf->flags & SURF_DRAWTURB))
 		{	
+			if (surf->texinfo->flags & SURF_FULLBRIGHT) {
+				int breakhere = true;
+			}
+
 			R_RenderLightmappedSurface(surf);
 		}
 		else // warp surface

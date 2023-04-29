@@ -128,9 +128,9 @@ void InitSaveshots (qboolean loadmenu)
 void DrawSaveshot (qboolean loadmenu)
 {
 	//BC 10-29-2018 remove the save shots
-	return;
+	//return;
 
-	/*
+	//*
 	char shotname [MAX_QPATH];
 	char mapshotname [MAX_QPATH];
 	int i;
@@ -154,9 +154,11 @@ void DrawSaveshot (qboolean loadmenu)
 		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, mapshotname, 1.0);
 	}
 	else if (m_saveshotvalid[MAX_SAVEGAMES])
-		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, "/gfx/noscreen.pcx", 1.0);
+		SCR_DrawPic (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, "/pics/m_noshot.tga", 1.0);
 	else
-		SCR_DrawFill2 (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, 0,0,0,255);*/
+		SCR_DrawFill2 (SCREEN_WIDTH/2+46, SCREEN_HEIGHT/2-58, 240, 180, ALIGN_CENTER, 0,0,0,255);
+		
+	//*/
 }
 
 
