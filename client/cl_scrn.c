@@ -632,8 +632,14 @@ void SCR_DrawCenterString (void)
 	int		j;
 	int		y; //, x;
 	int		remaining;
+
 	// added Psychospaz's fading centerstrings
-	int		alpha = 255 * ( 1 - (((cl.time + (10-1) - scr_centertime_start) / 1000.0) / (scr_centertime_end)));		
+	// modified to fade in and out
+	float alpha_f = (cl.time + 10 - scr_centertime_start);
+	alpha_f = ((alpha_f / 1000.0) / (scr_centertime_end));
+	alpha_f -= 0.5f;
+	alpha_f *= 2.f;
+	int alpha = 255 * (1.f - fabsf(alpha_f));
 
 	// the finale prints the characters one at a time
 	remaining = 9999;
