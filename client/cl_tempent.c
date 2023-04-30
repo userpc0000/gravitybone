@@ -128,7 +128,7 @@ struct sfx_s	*cl_sfx_watrexp;
 struct sfx_s	*cl_sfx_shockhit;
 
 
-struct sfx_s	*cl_sfx_footsteps[4];
+struct sfx_s	*cl_sfx_footsteps[8];
 //Knightmare- Lazarus footstep sounds
 struct sfx_s	*cl_sfx_metal_footsteps[4];
 struct sfx_s	*cl_sfx_dirt_footsteps[4];
@@ -210,10 +210,10 @@ void CL_RegisterTEntSounds (void)
 	S_RegisterSound ("player/fall1.wav");
 
 	
-	for (i=0 ; i<4 ; i++)
+	for (i=0 ; i<8 ; i++)
 	{
-		//Com_sprintf (name, sizeof(name), "player/step%i.wav", i+1);
-		Com_sprintf (name, sizeof(name), "player/step%i.wav", 1);
+		Com_sprintf (name, sizeof(name), "player/step%i.wav", i+1);
+		//Com_sprintf (name, sizeof(name), "player/step%i.wav", 1);
 		cl_sfx_footsteps[i] = S_RegisterSound (name);
 	}
 	

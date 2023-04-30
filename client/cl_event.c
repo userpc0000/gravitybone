@@ -36,7 +36,7 @@ typedef struct texsurf_s texsurf_t;
 texsurf_t tex_surf[MAX_TEX_SURF];
 int	num_texsurfs;
 
-extern struct sfx_s	*cl_sfx_footsteps[4];
+extern struct sfx_s	*cl_sfx_footsteps[8];
 //Knightmare- Lazarus footstep sounds
 extern struct sfx_s	*cl_sfx_metal_footsteps[4];
 extern struct sfx_s	*cl_sfx_dirt_footsteps[4];
@@ -246,10 +246,12 @@ void CL_EntityEvent (entity_state_t *ent)
 		CL_TeleportParticles (ent->origin);
 		break;
 	case EV_FOOTSTEP:
-		if (cl_footsteps->value)
+		//if (cl_footsteps->value)
 //Knightmare- Lazarus footsteps
-			//S_StartSound (NULL, ent->number, CHAN_BODY, cl_sfx_footsteps[rand()&3], 1, ATTN_NORM, 0);
-			CL_FootSteps (ent, false);
+			// the number 7 just so happens to double as a bitmask, so we can use & instead of modulus
+			//Com_Printf("Playing sound %i\n", snd);
+			S_StartSound (NULL, ent->number, CHAN_BODY, cl_sfx_footsteps[rand() & 7], 1, ATTN_NORM, 0);
+			//CL_FootSteps (ent, false);
 		break;
 	case EV_LOUDSTEP:
 

@@ -265,9 +265,11 @@ void PM_StepSlideMove_ (void)
 //
 		for (i=0 ; i<numplanes ; i++)
 		{
-			if (planes[i][2] < -0.8f && pml.velocity[2] > 150)
+			if (planes[i][2] < -0.8f && pml.velocity[2] > 150) {
+				//pm->s.pm_flags |= PMF_HIT_CEILING;
 				Com_Printf("You just bumped your head, vel %f\n", pml.velocity[2]);
-			
+			}
+
 			PM_ClipVelocity (pml.velocity, planes[i], pml.velocity, 1.01);
 			for (j=0 ; j<numplanes ; j++)
 				if (j != i)

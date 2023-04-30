@@ -31,6 +31,7 @@ float	xyspeed;
 float	bobmove;
 int		bobcycle;		// odd cycles are right foot going forward
 float	bobfracsin;		// sin(bobfrac*M_PI)
+float last_bobtime = 0.f;
 
 qboolean PlayerOnFloor (edict_t *player);
 
@@ -322,11 +323,12 @@ void SV_CalcViewOffset (edict_t *ent)
 
 	// add bob height
 
-	bob = bobfracsin * xyspeed * bob_up->value;
-	if (bob > 6)
-		bob = 6;
-//	gi.DebugGraph (bob *2, 255);
-	v[2] += bob * 4;
+	float bob_mult = xyspeed / 50.f;
+	if (bob_mult > 1.f) bob_mult = 1.f;
+	bob = bobfracsin * 6.f * bob_mult;
+	v[2] += bob;
+
+	//Com_Printf("bobfracsin %f xyspeed %f\n", bobfracsin, xyspeed);
 
 	// add kick offset
 
@@ -361,11 +363,6 @@ void SV_CalcViewOffset (edict_t *ent)
 		else if (v[2] > 30)
 			v[2] = 30;
 	}
-
-
-
-	
-
 
 	VectorCopy (v, ent->client->ps.viewoffset);
 }
@@ -1066,10 +1063,17 @@ void G_SetClientEvent (edict_t *ent)
 
 	if ( ent->groundentity || PlayerOnFloor(ent))
 	{
-		if (!ent->waterlevel && ( xyspeed > 225) && !ent->vehicle)
+		//if (!ent->waterlevel && ( xyspeed > 225) && !ent->vehicle)
+		if (!ent->waterlevel && ( xyspeed > 50) && !ent->vehicle)
 		{
-			if ( (int)(current_client->bobtime+bobmove) != bobcycle )
+			//Com_Printf("bobtime: %f bobmove: %f bobcycle: %i\n", current_client->bobtime, bobmove, bobcycle);
+			//if ( (int)(current_client->bobtime+bobmove) != bobcycle )
+			float mod_bobtime = fmodf(current_client->bobtime, 1.f);
+			if (mod_bobtime >= 0.5f && last_bobtime < 0.5f)
 				ent->s.event = EV_FOOTSTEP;	 //Knightmare- move Lazarus footsteps client-side
+			//	if (mod_bobtime < last_bobtime)
+			//		ent->s.event = EV_FOOTSTEP;	 //Knightmare- move Lazarus footsteps client-side
+			last_bobtime = mod_bobtime;
 		}
 		else if( ent->in_mud && (ent->waterlevel == 1) && (xyspeed > 40))
 		{
@@ -1347,6 +1351,10 @@ void ClientEndServerFrame (edict_t *ent)
 	VectorCopy(ent->s.origin, current_client->ps.pmove.origin_f);
 	VectorCopy(ent->velocity, current_client->ps.pmove.velocity_f);
 	
+	if (current_client->ps.pmove.pm_flags & PMF_HIT_CEILING) {
+		gi.sound (current_player, CHAN_VOICE, gi.soundindex("player/pain1.wav"), 1, ATTN_NORM, 0);
+	}
+
 	//
 	// If the end of unit layout is displayed, don't give
 	// the player any normal movement attributes
@@ -1404,13 +1412,18 @@ void ClientEndServerFrame (edict_t *ent)
 		else
 			bobmove = 0.0625;
 	}
-	
-	bobtime = (current_client->bobtime += bobmove);
 
 	if (current_client->ps.pmove.pm_flags & PMF_DUCKED)
+		bobmove *= 3;
+	else
+		bobmove *= 2;
+
+	bobtime = (current_client->bobtime += bobmove);
+
+	/*if (current_client->ps.pmove.pm_flags & PMF_DUCKED)
 		bobtime *= 3;
 	else
-		bobtime *= 2;
+		bobtime *= 2;*/
 
 	bobcycle = (int)bobtime;
 

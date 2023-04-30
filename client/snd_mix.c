@@ -327,11 +327,13 @@ void S_PaintChannels(int endtime)
 						ch->pos = 0;
 						ch->end = ltime + sc->length;
 					}
-					else if (sc->loopstart >= 0)
-					{
-						ch->pos = sc->loopstart;
-						ch->end = ltime + sc->length - ch->pos;
-					}
+					// this just causes the game to hang infinitely,
+					// why do we want this?
+					//	else if (sc->loopstart >= 0)
+					//	{
+					//		ch->pos = sc->loopstart;
+					//		ch->end = ltime + sc->length - ch->pos;
+					//	}
 					else				
 					{	// channel just stopped
 						ch->sfx = NULL;

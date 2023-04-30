@@ -632,6 +632,7 @@ typedef enum
 #define	PMF_TIME_TELEPORT	32	// pm_time is non-moving time
 #define PMF_NO_PREDICTION	64	// temporarily disables prediction (used for grappling hook)
 #define PMF_ON_LADDER		128
+#define PMF_HIT_CEILING		256
 
 // this structure needs to be communicated bit-accurate
 // from the server to the client to guarantee that
