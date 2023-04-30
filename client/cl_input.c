@@ -300,7 +300,7 @@ void CL_BaseMove (usercmd_t *cmd)
 	cmd->sidemove -= cl_sidespeed->value * CL_KeyState (&in_moveleft);
 
 	cmd->upmove += cl_upspeed->value * CL_KeyState (&in_up);
-	cmd->upmove -= cl_upspeed->value * CL_KeyState (&in_down);
+	//cmd->upmove -= cl_upspeed->value * CL_KeyState (&in_down);
 
 	if (! (in_klook.state & 1) )
 	{	
@@ -374,6 +374,7 @@ void CL_ClampPitch (void)
 CL_FinishMove
 ==============
 */
+qboolean crouch_toggle = false;
 void CL_FinishMove (usercmd_t *cmd)
 {
 	int		ms;
@@ -395,6 +396,13 @@ void CL_FinishMove (usercmd_t *cmd)
 	if (in_use.state & 3)
 		cmd->buttons |= BUTTON_USE;
 	in_use.state &= ~2;
+
+	if (in_down.state & 2)
+		crouch_toggle = !crouch_toggle;
+	in_down.state &= ~2;
+
+	if (crouch_toggle)
+		cmd->buttons |= BUTTON_DUCK;
 
 	if (anykeydown && cls.key_dest == key_game)
 		cmd->buttons |= BUTTON_ANY;

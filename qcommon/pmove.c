@@ -913,9 +913,19 @@ void PM_CheckJump (void)
 	pm->s.pm_flags |= PMF_JUMP_HELD;
 
 	pm->groundentity = NULL;
-	pml.velocity[2] += 270;
-	if (pml.velocity[2] < 270)
-		pml.velocity[2] = 270;
+
+	// todo: crouch jump
+	if (pm->s.pm_flags & PMF_DUCKED) {
+		pml.velocity[2] += 370;
+		if (pml.velocity[2] < 370)
+			pml.velocity[2] = 370;
+		Com_Printf("Triggered crouch jump\n");
+	}
+	else {
+		pml.velocity[2] += 270;
+		if (pml.velocity[2] < 270)
+			pml.velocity[2] = 270;
+	}
 }
 
 
@@ -1141,7 +1151,8 @@ void PM_CheckDuck (void)
 		pm->s.pm_flags |= PMF_DUCKED;
 	}
 	//else if (pm->cmd.upmove < 0 && (pm->s.pm_flags & PMF_ON_GROUND) )
-	else if (pm->cmd.upmove < 0)
+	//else if (pm->cmd.upmove < 0)
+	else if (pm->cmd.buttons & BUTTON_DUCK)
 	{	// duck
 		pm->s.pm_flags |= PMF_DUCKED;
 	}
