@@ -265,6 +265,9 @@ void PM_StepSlideMove_ (void)
 //
 		for (i=0 ; i<numplanes ; i++)
 		{
+			if (planes[i][2] < -0.8f && pml.velocity[2] > 150)
+				Com_Printf("You just bumped your head, vel %f\n", pml.velocity[2]);
+			
 			PM_ClipVelocity (pml.velocity, planes[i], pml.velocity, 1.01);
 			for (j=0 ; j<numplanes ; j++)
 				if (j != i)
@@ -914,17 +917,19 @@ void PM_CheckJump (void)
 
 	pm->groundentity = NULL;
 
-	// todo: crouch jump
+	// jump higher out of a crouch
 	if (pm->s.pm_flags & PMF_DUCKED) {
-		pml.velocity[2] += 370;
-		if (pml.velocity[2] < 370)
-			pml.velocity[2] = 370;
-		Com_Printf("Triggered crouch jump\n");
+		pml.velocity[2] += 360;
+		if (pml.velocity[2] < 360)
+			pml.velocity[2] = 360;
 	}
 	else {
-		pml.velocity[2] += 270;
-		if (pml.velocity[2] < 270)
-			pml.velocity[2] = 270;
+		pml.velocity[2] += 220;
+		if (pml.velocity[2] < 220)
+			pml.velocity[2] = 220;
+		// slightly increase horizontal movement
+		pml.velocity[0] *= 1.5f;
+		pml.velocity[1] *= 1.5f;
 	}
 }
 
