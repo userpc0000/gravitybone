@@ -591,7 +591,7 @@ void SCR_CenterPrint (char *str)
 	}
 
 	// echo it to the console
-	Com_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
+	Com_Printf("\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n");
 
 	s = str;
 	do	
@@ -620,7 +620,7 @@ void SCR_CenterPrint (char *str)
 			break;
 		s++;		// skip the \n
 	} while (1);
-	Com_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
+	Com_Printf("\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n");
 	Con_ClearNotify ();
 }
 
@@ -1690,13 +1690,13 @@ void SCR_ExecuteLayoutString (char *s)
 	static float vignette_intensity = 0.f;
 	float ff = -cl.viewangles[PITCH];
 	if (ff < -30.f) ff = -30.f;
-
-	if (cl.frame.playerstate.pmove.pm_flags & PMF_DUCKED) {
+	if ((cl.frame.playerstate.pmove.pm_flags & PMF_ON_GROUND) &&
+		(cl.frame.playerstate.pmove.pm_flags & PMF_DUCKED)) {
 		vignette_intensity += 0.1f;
 		if (vignette_intensity > 1.f) vignette_intensity = 1.f;
 	}
 	else {
-		vignette_intensity -= 0.1f;
+		vignette_intensity -= 0.13f;
 		if (vignette_intensity < 0.f) vignette_intensity = 0.f;
 	}
 
