@@ -158,7 +158,7 @@ Does not modify any world state?
 */
 #define	MIN_STEP_NORMAL	0.7		// can't step up onto very steep slopes
 #define	MAX_CLIP_PLANES	5
-void PM_StepSlideMove_ (void)
+void PM_StepSlideMove_ (qboolean second_go)
 {
 	int			bumpcount, numbumps;
 	vec3_t		dir;
@@ -265,9 +265,8 @@ void PM_StepSlideMove_ (void)
 //
 		for (i=0 ; i<numplanes ; i++)
 		{
-			if (planes[i][2] < -0.8f && pml.velocity[2] > 150) {
-				//pm->s.pm_flags |= PMF_HIT_CEILING;
-				Com_Printf("You just bumped your head, vel %f\n", pml.velocity[2]);
+			if (second_go && planes[i][2] < -0.8f && pml.velocity[2] > 100) {
+				pm->s.pm_flags |= PMF_HIT_CEILING;
 			}
 
 			PM_ClipVelocity (pml.velocity, planes[i], pml.velocity, 1.01);
@@ -332,7 +331,7 @@ void PM_StepSlideMove (void)
 	VectorCopy (pml.origin, start_o);
 	VectorCopy (pml.velocity, start_v);
 
-	PM_StepSlideMove_ ();
+	PM_StepSlideMove_ (false);
 
 	VectorCopy (pml.origin, down_o);
 	VectorCopy (pml.velocity, down_v);
@@ -348,7 +347,7 @@ void PM_StepSlideMove (void)
 	VectorCopy (up, pml.origin);
 	VectorCopy (start_v, pml.velocity);
 
-	PM_StepSlideMove_ ();
+	PM_StepSlideMove_ (true);
 
 	// push down the final amount
 	VectorCopy (pml.origin, down);

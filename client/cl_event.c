@@ -285,6 +285,10 @@ void CL_EntityEvent (entity_state_t *ent)
 	case EV_CLIMB_LADDER:
 		S_StartSound (NULL, ent->number, CHAN_BODY, cl_sfx_ladder[rand()&3], 0.5, ATTN_NORM, 0);
 		break;
+	case EV_HIT_CEILING:
+		//S_StartSound (NULL, ent->number, CHAN_AUTO, S_RegisterSound ("player/pain1.wav"), 1, ATTN_NORM, 0);
+		S_StartSound (NULL, ent->number, CHAN_AUTO, S_RegisterSound ("player/male/fall1.wav"), 1, ATTN_NORM, 0);
+		break;
 //end Knightmare
 	}
 }

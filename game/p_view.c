@@ -1110,6 +1110,15 @@ void G_SetClientEvent (edict_t *ent)
 				ent->s.event = EV_CLIMB_LADDER;	 //Knightmare- move Lazarus footsteps client-side
 		}
 	}
+
+	if (ent->client->ps.pmove.pm_flags & PMF_HIT_CEILING) {
+		//gi.sound (current_player, CHAN_VOICE, gi.soundindex("player/pain1.wav"), 1, ATTN_NORM, 0);
+		//gi.sound (current_player, CHAN_VOICE, gi.soundindex("player/pain2.wav"), 1, ATTN_NORM, 0);
+		Com_Printf("You just bumped your head\n");
+		//ent->s.sound = gi.soundindex("player/pain3.wav");
+		ent->s.event = EV_HIT_CEILING;
+		ent->client->ps.pmove.pm_flags &= ~PMF_HIT_CEILING;
+	}
 }
 
 /*
@@ -1351,10 +1360,6 @@ void ClientEndServerFrame (edict_t *ent)
 	VectorCopy(ent->s.origin, current_client->ps.pmove.origin_f);
 	VectorCopy(ent->velocity, current_client->ps.pmove.velocity_f);
 	
-	if (current_client->ps.pmove.pm_flags & PMF_HIT_CEILING) {
-		gi.sound (current_player, CHAN_VOICE, gi.soundindex("player/pain1.wav"), 1, ATTN_NORM, 0);
-	}
-
 	//
 	// If the end of unit layout is displayed, don't give
 	// the player any normal movement attributes

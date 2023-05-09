@@ -646,7 +646,7 @@ typedef struct
 	vec3_t		origin_f;		// Sirennus
 	vec3_t		velocity_f;		// Sirennus
 
-	byte		pm_flags;		// ducked, jump_held, etc
+	short		pm_flags;		// ducked, jump_held, etc
 	byte		pm_time;		// each unit = 8 ms
 	short		gravity;
 	short		delta_angles[3];	// add to command angles to get view direction
@@ -1396,7 +1396,8 @@ typedef enum
 	EV_SLOSH, //Sloshing in ankle-deep water
 	EV_WADE, //wading or treading water
 	EV_WADE_MUD, //wading in mud
-	EV_CLIMB_LADDER //climbing ladder
+	EV_CLIMB_LADDER, //climbing ladder
+	EV_HIT_CEILING
 	//end Knightmare
 } entity_event_t;
 
