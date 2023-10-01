@@ -113,8 +113,13 @@ static void prepareVideoRefresh( void )
 
 static void ApplyChanges( void *unused )
 {
+	//	if (s_texfilter_box.curvalue == 0)
+	//		Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_NEAREST");
+	//	else if (s_texfilter_box.curvalue == 1)
+	//		Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
+
 	if (s_texfilter_box.curvalue == 0)
-		Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_NEAREST");
+		Cvar_Set("r_texturemode", "GL_NEAREST_MIPMAP_NEAREST");
 	else if (s_texfilter_box.curvalue == 1)
 		Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
 
@@ -276,8 +281,10 @@ void Menu_Video_Init (void)
 	};
 	static const char *mip_names[] =
 	{
-		"Bilinear",
-		"Trilinear",
+		//	"Bilinear",
+		//	"Trilinear",
+		"Nearest Mipmap",
+		"Linear Mipmap",
 		0
 	};
 	static const char *lmh_names[] =
