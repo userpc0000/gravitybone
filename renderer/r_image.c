@@ -29,7 +29,6 @@ int			numgltextures;
 int			base_textureid;		// gltextures[i] = base_textureid+i
 
 static byte			 intensitytable[256];
-static unsigned char gammatable[256];
 
 cvar_t		*r_intensity;
 
@@ -1384,48 +1383,6 @@ void GL_ResampleTexture (unsigned *in, int inwidth, int inheight, unsigned *out,
 
 /*
 ================
-GL_LightScaleTexture
-
-Scale up the pixel values in a texture to increase the
-lighting range
-================
-*/
-void GL_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only_gamma )
-{
-	if ( only_gamma )
-	{
-		int		i, c;
-		byte	*p;
-
-		p = (byte *)in;
-
-		c = inwidth*inheight;
-		for (i=0 ; i<c ; i++, p+=4)
-		{
-			p[0] = gammatable[p[0]];
-			p[1] = gammatable[p[1]];
-			p[2] = gammatable[p[2]];
-		}
-	}
-	else
-	{
-		int		i, c;
-		byte	*p;
-
-		p = (byte *)in;
-
-		c = inwidth*inheight;
-		for (i=0 ; i<c ; i++, p+=4)
-		{
-			p[0] = gammatable[intensitytable[p[0]]];
-			p[1] = gammatable[intensitytable[p[1]]];
-			p[2] = gammatable[intensitytable[p[2]]];
-		}
-	}
-}
-
-/*
-================
 GL_MipMap
 
 Operates in place, quartering the size of the texture
@@ -1665,10 +1622,7 @@ done:
 		scaled_height=height;
 		scaled=data;
 	}
-
-	if (!gl_state.gammaRamp)
-		GL_LightScaleTexture (scaled, scaled_width, scaled_height, !mipmap );
-
+	
 	if (mipmap)
 	{
 		if (gl_state.sgis_mipmap)
@@ -2274,8 +2228,7 @@ R_InitImages
 void R_InitImages (void)
 {
 	int		i, j;
-	float	g = vid_gamma->value;
-
+	
 	registration_sequence = 1;
 
 	// init intensity conversions
@@ -2303,32 +2256,7 @@ void R_InitImages (void)
 		if ( !gl_state.d_16to8table )
 			VID_Error( ERR_FATAL, "Couldn't load pics/16to8.pcx");
 	}
-
-	if (gl_config.rendType == GLREND_VOODOO)
-	//if ( gl_config.renderer & ( GL_RENDERER_VOODOO | GL_RENDERER_VOODOO2 ) )
-	{
-		g = 1.0F;
-	}
-
-	for ( i = 0; i < 256; i++ )
-	{
-		if ( g == 1 )
-		{
-			gammatable[i] = i;
-		}
-		else
-		{
-			float inf;
-
-			inf = 255 * pow ( (i+0.5)/255.5 , g ) + 0.5;
-			if (inf < 0)
-				inf = 0;
-			if (inf > 255)
-				inf = 255;
-			gammatable[i] = inf;
-		}
-	}
-
+	
 	for (i=0 ; i<256 ; i++)
 	{
 		j = i*r_intensity->value;

@@ -204,7 +204,6 @@ extern	cvar_t	*r_fullbright;
 extern	cvar_t	*r_novis;
 extern	cvar_t	*r_nocull;
 extern	cvar_t	*r_lerpmodels;
-extern	cvar_t	*r_ignorehwgamma; // Knightmare- hardware gamma
 
 extern	cvar_t	*r_waterwave;	// Knightmare- water waves
 extern	cvar_t  *r_caustics;	// Barnes water caustics
@@ -310,7 +309,6 @@ extern  cvar_t  *r_bloom;
 #endif
 
 extern	cvar_t	*vid_fullscreen;
-extern	cvar_t	*vid_gamma;
 
 
 extern	int		gl_lightmap_format;
@@ -745,8 +743,6 @@ typedef struct
 
 	qboolean		envAdd;
 	qboolean		stencilEnabled;
-
-	qboolean		gammaRamp;
 
 	qboolean		cullFace;
 	qboolean		polygonOffsetFill; // Knightmare added

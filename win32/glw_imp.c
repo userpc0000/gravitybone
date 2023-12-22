@@ -324,40 +324,9 @@ rserr_t GLimp_SetMode ( int *pwidth, int *pheight, int mode, qboolean fullscreen
 ** for the window.  The state structure is also nulled out.
 **
 */
-WORD original_ramp[3][256]; //Knightmare added
-WORD gamma_ramp[3][256];
-
 
 void GLimp_Shutdown( void )
 {
-	/*
-	//Knightmare- added Vic's hardware gamma ramp
-	if ( !r_ignorehwgamma->value )
-	{
-
-		if( qwglSetDeviceGammaRamp3DFX )
-		{
-			WORD newramp[3*256];
-			int j;
-
-			for( j = 0; j < 256; j++ )
-			{
-				newramp[j+0] = original_ramp[0][j];
-				newramp[j+256] = original_ramp[1][j];
-				newramp[j+512] = original_ramp[2][j];
-			}
-
-			qwglSetDeviceGammaRamp3DFX ( glw_state.hDC, newramp );
-		}
-		else
-		{
-			SetDeviceGammaRamp (glw_state.hDC, original_ramp);
-		}
-
-	}
-	//end Knightmare
-	*/
-
 	if ( qwglMakeCurrent && !qwglMakeCurrent( NULL, NULL ) )
 		VID_Printf( PRINT_ALL, "ref_gl::R_Shutdown() - wglMakeCurrent failed\n");
 	if ( glw_state.hGLRC )
@@ -591,35 +560,6 @@ qboolean GLimp_InitGL (void)
 	** print out PFD specifics 
 	*/
 	VID_Printf( PRINT_ALL, "PIXELFORMAT: color(%d-bits) Z(%d-bit)\n", ( int ) pfd.cColorBits, ( int ) pfd.cDepthBits );
-
-	//Knightmare- Vic's hardware gamma stuff
-	if ( !r_ignorehwgamma->value )
-	{
-		if( qwglGetDeviceGammaRamp3DFX )
-		{
-			WORD newramp[3*256];
-			int j;
-
-			gl_state.gammaRamp = qwglGetDeviceGammaRamp3DFX ( glw_state.hDC, newramp );
-
-			for( j = 0; j < 256; j++ )
-			{
-				original_ramp[0][j] = newramp[j+0];
-				original_ramp[1][j] = newramp[j+256];
-				original_ramp[2][j] = newramp[j+512];
-			}
-		} else
-		{
-			gl_state.gammaRamp = GetDeviceGammaRamp ( glw_state.hDC, original_ramp );
-		}
-	}
-	else
-	{
-		gl_state.gammaRamp = false;
-	}
-
-	if (gl_state.gammaRamp)
-		vid_gamma->modified = true;
 
 	// moved these to GL_SetDefaultState
 	//gl_state.blend = false;
